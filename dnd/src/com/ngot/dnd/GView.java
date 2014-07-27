@@ -1,6 +1,7 @@
 package com.ngot.dnd;
 
 import android.content.Context;
+import android.drm.DrmStore.RightsStatus;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -30,7 +31,7 @@ public class GView extends SurfaceView implements Callback {
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
-		sWidth = getWidth(); sHeight = getHeight();
+		sWidth = getWidth(); sHeight = (int)(getHeight()*0.7f);
 		if(mThread==null){
 			mThread = new GThread(mContext, mHolder, sWidth, sHeight);
 			mThread.start();
@@ -47,7 +48,21 @@ public class GView extends SurfaceView implements Callback {
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-
+		
+		int action = event.getAction();
+		int x = (int)event.getX();
+		int y = (int)event.getY(); 
+		switch(action){
+		case MotionEvent.ACTION_DOWN:
+			mThread.setdown(x,y);
+			break;
+		case MotionEvent.ACTION_MOVE:
+			mThread.setmove(x,y);
+			
+			break;
+		case MotionEvent.ACTION_UP:
+			break;
+		}
 		
 		return true;
 	}

@@ -20,7 +20,7 @@ public class GThread extends Thread {
 
 	private int ground;
 	Sprite imgBack;
-	Sprite imgPlayer,imgZombie;
+	Sprite imgZombie;
 	Player player;
 	
 	public GThread(Context c,SurfaceHolder holder,int width,int heght) {
@@ -39,7 +39,7 @@ public class GThread extends Thread {
 		
 		imgBack.initSprite(0, 0, sWidth, sHeight);
 		player.initSprite(sWidth/2, ground , sWidth/2, sWidth/3);
-		player.setAnimation(player.mImg.getWidth()/5, player.mImg.getHeight(), 6, 5);
+		player.setAnimation(player.mImg.getWidth()/5, player.mImg.getHeight(), 10, 5);
 		imgZombie.initSprite(sWidth/6*5, ground, sWidth/4, sWidth/3);
 		
 	}
@@ -52,6 +52,22 @@ public class GThread extends Thread {
 		imgBack.drawSprite(canvas, true);
 		imgZombie.drawSprite(canvas, false);
 		player.drawSprite(canvas, false);
+		Paint paint = new Paint();
+		paint.setColor(Color.RED);
+		paint.setTextSize(30);
+		canvas.drawText(player.imgX+"/"+player.imgY, sWidth/2,sHeight/2, paint);
+		canvas.drawText("down"+downx+"/"+downy, sWidth/2,sHeight/3, paint);
+		canvas.drawText("move"+movex+"/"+movey, sWidth/2,sHeight/4, paint);
+	}
+	int downx,downy;
+	int movex,movey;
+	void setdown(int x,int y){
+		downx = x;
+		downy = y;
+	}
+	void setmove(int x,int y){
+		movex = x;
+		movey = y;
 	}
 	@Override
 	public void run() {
@@ -79,7 +95,6 @@ public class GThread extends Thread {
 			}
 		}//end while
 	}//end run
-	
 	
 		
 	void stopThread(){
