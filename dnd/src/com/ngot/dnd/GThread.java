@@ -2,14 +2,9 @@ package com.ngot.dnd;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
+import android.graphics.*;
 import android.view.SurfaceHolder;
 
-import com.ngot.Sprite.Sprite;
 
 public class GThread extends Thread {
 	static int sWidth,sHeight;
@@ -20,18 +15,24 @@ public class GThread extends Thread {
 
 	private int ground;
 	Sprite imgBack;
-	Sprite imgZombie;
+	Zombie zombie;
 	Player player;
+	GameMap map;
+	boolean left=false, right=false, up = false, down = false;
 	
+	Paint paint = new Paint();
 	public GThread(Context c,SurfaceHolder holder,int width,int heght) {
 		mContext = c;	
 		mHolder = holder;	
 		sWidth = width;	
 		sHeight = heght;
-		ground = (int)(heght*0.7f);
+		ground = (int)(heght*0.9f);
 		imgBack = new Sprite(decode(c.getResources(), R.drawable.bg));
 		player = new Player(decode(c.getResources(), R.drawable.player_ani));
-		imgZombie = new Sprite(decode(c.getResources(), R.drawable.zombie));
+		zombie = new Zombie(decode(c.getResources(), R.drawable.zombie));
+		map = new GameMap(decode(c.getResources(), R.drawable.map));
+		paint.setColor(Color.RED);
+		paint.setTextSize(30);
 		Start();
 	}
 	
@@ -40,21 +41,24 @@ public class GThread extends Thread {
 		imgBack.initSprite(0, 0, sWidth, sHeight);
 		player.initSprite(sWidth/2, ground , sWidth/2, sWidth/3);
 		player.setAnimation(player.mImg.getWidth()/5, player.mImg.getHeight(), 10, 5);
-		imgZombie.initSprite(sWidth/6*5, ground, sWidth/4, sWidth/3);
-		
+		zombie.initSprite(sWidth/6*5, ground, sWidth/4, sWidth/3);
+		map.initSprite(0, sHeight-map.mImg.getHeight());
 	}
 	void Update(){
 		long GameTime = System.currentTimeMillis();
-		player.Update();
+		player.Update(left, right, up, down);
 		player.aniUpdate(GameTime);
+		zombie.Update(player.imgX, player.sneak);
+		map.Update(player.imgX);
 	}
 	void drawSprite(Canvas canvas){
+		
 		imgBack.drawSprite(canvas, true);
-		imgZombie.drawSprite(canvas, false);
+		map.drawSprite(canvas, true);
+		zombie.drawSprite(canvas, false);
 		player.drawSprite(canvas, false);
-		Paint paint = new Paint();
-		paint.setColor(Color.RED);
-		paint.setTextSize(30);
+		
+		
 		canvas.drawText(player.imgX+"/"+player.imgY, sWidth/2,sHeight/2, paint);
 		canvas.drawText("down"+downx+"/"+downy, sWidth/2,sHeight/3, paint);
 		canvas.drawText("move"+movex+"/"+movey, sWidth/2,sHeight/4, paint);
@@ -68,6 +72,26 @@ public class GThread extends Thread {
 	void setmove(int x,int y){
 		movex = x;
 		movey = y;
+		if(downx-100>movex){
+			left = true;
+			right = false;
+		}else if(downx+100<movex){
+			right = true;
+			left = false;
+		}
+		/*else if(downy-100>movey){
+			up = true;
+			down = false;
+		}else if(downy+100<movey){
+			down = true;
+			up = false;
+		}*/
+	}
+	void resetTouch(){
+			left = false;
+			right = false;
+			up = false;
+			down = false;
 	}
 	@Override
 	public void run() {

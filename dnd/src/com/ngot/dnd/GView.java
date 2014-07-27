@@ -31,7 +31,7 @@ public class GView extends SurfaceView implements Callback {
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
-		sWidth = getWidth(); sHeight = (int)(getHeight()*0.7f);
+		sWidth = getWidth(); sHeight = getHeight();
 		if(mThread==null){
 			mThread = new GThread(mContext, mHolder, sWidth, sHeight);
 			mThread.start();
@@ -58,9 +58,9 @@ public class GView extends SurfaceView implements Callback {
 			break;
 		case MotionEvent.ACTION_MOVE:
 			mThread.setmove(x,y);
-			
 			break;
 		case MotionEvent.ACTION_UP:
+			mThread.resetTouch();
 			break;
 		}
 		

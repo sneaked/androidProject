@@ -24,6 +24,7 @@ public class Sprite {
 	
 	public Sprite(Bitmap img) {
 		mImg = img;
+		
 	}
 
 	public void initSprite(float x,float y,int width,int height){
@@ -33,12 +34,19 @@ public class Sprite {
 		imgWidth = mImg.getWidth()/2;
 		imgHeight = mImg.getHeight()/2;
 		
-		mRect = new Rect(0, 0, 0, 0);
-		mFrameTimer = 0;
-		mCurrentFrame = 0;
+		
+	}
+	public void initSprite(float x,float y){
+		imgX = (int)x;
+		imgY = (int)y;
+		imgWidth = mImg.getWidth()/2;
+		imgHeight = mImg.getHeight()/2;
 	}
 	
 	public void setAnimation(int width,int height,int fps,int iFrame){
+		mRect = new Rect(0, 0, 0, 0);
+		mFrameTimer = 0;
+		mCurrentFrame = 0;
 		mSpriteWidth = width;
 		mSpriteHeight = height;
 		mFps = fps;
