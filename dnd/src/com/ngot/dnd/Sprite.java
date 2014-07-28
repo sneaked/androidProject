@@ -19,6 +19,7 @@ public class Sprite {
 	private int mSpriteWidth;//프레임 크기
 	private int mSpriteHeight;
 	private long mFrameTimer;
+	long mUpdateTime;
 	
 	boolean ani = false;
 	
@@ -80,6 +81,7 @@ public class Sprite {
 	}
 	
 	public void aniUpdate(long GameTime){
+		mUpdateTime = GameTime;
 		if(GameTime>mFrameTimer+mFps){
 			mFrameTimer = GameTime;
 			mCurrentFrame += 1;

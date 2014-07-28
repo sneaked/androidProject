@@ -1,5 +1,7 @@
 package com.ngot.dnd;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.*;
@@ -13,11 +15,13 @@ public class GThread extends Thread {
 	SurfaceHolder mHolder;
 	boolean isRun = true,isWait = false;
 
-	private int ground;
+	//private int ground;
+	static int ground;
 	Sprite imgBack;
-	Zombie zombie;
 	Player player;
-	GameMap map;
+	int playerDirection = 0;
+	Enemy enemy,enemy2;
+	ArrayList<Sprite> mEnemys = new ArrayList<Sprite>();
 	boolean left=false, right=false, up = false, down = false;
 	
 	Paint paint = new Paint();
@@ -27,12 +31,11 @@ public class GThread extends Thread {
 		sWidth = width;	
 		sHeight = heght;
 		ground = (int)(heght*0.75f);
-		
 		//객체생성
-		imgBack = new Sprite(decode(c.getResources(), R.drawable.bg));
-		player = new Player(decode(c.getResources(), R.drawable.player_ani));
-		zombie = new Zombie(decode(c.getResources(), R.drawable.zombie));
-		map = new GameMap(decode(c.getResources(), R.drawable.map));
+		imgBack = new Sprite(decode(R.drawable.bg));
+		player = new Player(decode(R.drawable.player_ani));
+		enemy = new Enemy(decode(R.drawable.zombie));
+		enemy2 = new Enemy(decode(R.drawable.zombie));
 		paint.setColor(Color.RED);
 		paint.setTextSize(30);
 		Start();
@@ -41,24 +44,28 @@ public class GThread extends Thread {
 	void Start(){
 		//이미지 초기화
 		imgBack.initSprite(0, 0, sWidth, sHeight);
-		player.initSprite(sWidth/2, ground , sWidth/2, sWidth/3);
+		player.initSprite(sWidth*0.2f, ground , sWidth/2, sWidth/3);
 		player.setAnimation(player.mImg.getWidth()/5, player.mImg.getHeight(), 10, 5);
-		zombie.initSprite(sWidth/6*5, sHeight/2, sWidth/2, sWidth/2);
-		map.initSprite(0, sHeight-map.mImg.getHeight());
+		enemy.initSprite(sWidth*0.65f, ground, sWidth/4, sWidth/3);
+		enemy2.initSprite(sWidth*0.6f, ground, sWidth/4, sWidth/3);
+		mEnemys.add(enemy);
+		mEnemys.add(enemy2);
+		
 	}
 	void Update(){
 		
 		//업데이트
 		long GameTime = System.currentTimeMillis();
-		player.Update(left, right, up, down);
 		player.aniUpdate(GameTime);
-		map.Update(player.imgX);
+		playerDirection = player.Update(playerDirection);
+		enemy.Update();
+		enemy2.Update();
 	}
 	void drawSprite(Canvas canvas){
 		//그리기
 		imgBack.drawSprite(canvas, true);
-		map.drawSprite(canvas, true);
-		zombie.drawSprite(canvas, false);
+		enemy.drawSprite(canvas, false);
+		enemy2.drawSprite(canvas, false);
 		player.drawSprite(canvas, false);
 		canvas.drawText(player.imgX+"/"+player.imgY, sWidth/2,sHeight/2, paint);
 		canvas.drawText("down"+downx+"/"+downy, sWidth/2,sHeight/3, paint);
@@ -68,6 +75,7 @@ public class GThread extends Thread {
 	//test
 	int downx,downy;
 	int movex,movey;
+	int upx,upy;
 	void setdown(int x,int y){
 		downx = x;
 		downy = y;
@@ -75,21 +83,24 @@ public class GThread extends Thread {
 	void setmove(int x,int y){
 		movex = x;
 		movey = y;
-		if(downx-100>movex){
-			left = true;
-			right = false;
-		}else if(downx+100<movex){
-			right = true;
-			left = false;
-		}
-		/*else if(downy-100>movey){
-			up = true;
-			down = false;
-		}else if(downy+100<movey){
-			down = true;
-			up = false;
-		}*/
 	}
+	void setup(int x,int y){
+		upx = x;
+		upy = y;
+		if(playerDirection==0){
+			playerDirection = 1;
+			int tmp = mEnemys.get(0).imgX;
+			for(Sprite t: mEnemys){
+				if(tmp>t.imgX){
+					tmp = t.imgX;
+				}
+			}
+			player.setEnemyx(tmp);
+		}
+		
+		player.setTouchTime(true);
+	}
+	
 	void resetTouch(){
 			left = false;
 			right = false;
@@ -140,9 +151,9 @@ public class GThread extends Thread {
 		}
 	}
 	
-	Bitmap decode(Resources resource,int id){
+	Bitmap decode(int id){
 		Bitmap tmp;
-		tmp = BitmapFactory.decodeResource(resource, id);
+		tmp = BitmapFactory.decodeResource(mContext.getResources(), id);
 		return tmp;
 	}
 	

@@ -60,7 +60,7 @@ public class GView extends SurfaceView implements Callback {
 			mThread.setmove(x,y);
 			break;
 		case MotionEvent.ACTION_UP:
-			mThread.resetTouch();
+			mThread.setup(x, y);
 			break;
 		}
 		

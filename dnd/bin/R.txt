@@ -234,10 +234,9 @@ int drawable abc_textfield_searchview_right_holo_dark 0x7f020055
 int drawable abc_textfield_searchview_right_holo_light 0x7f020056
 int drawable bg 0x7f020057
 int drawable ic_launcher 0x7f020058
-int drawable map 0x7f020059
-int drawable player 0x7f02005a
-int drawable player_ani 0x7f02005b
-int drawable zombie 0x7f02005c
+int drawable player 0x7f020059
+int drawable player_ani 0x7f02005a
+int drawable zombie 0x7f02005b
 int id GView 0x7f05003c
 int id action_bar 0x7f05001c
 int id action_bar_activity_content 0x7f050015
