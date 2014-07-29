@@ -14,7 +14,7 @@ public class Player extends Sprite {
 		
 	}
 	@Override
-	public void initSprite(float x, float y, int width, int height) {
+	public void initSprite(float x, float y, float width, float height) {
 		super.initSprite(x, y, width, height);
 		defaultPositionx = imgX;
 	}

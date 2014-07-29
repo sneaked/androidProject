@@ -28,8 +28,8 @@ public class Sprite {
 		
 	}
 
-	public void initSprite(float x,float y,int width,int height){
-		mImg = Bitmap.createScaledBitmap(mImg, width, height, true);
+	public void initSprite(float x,float y,float width,float height){
+		mImg = Bitmap.createScaledBitmap(mImg, (int)width, (int)height, true);
 		imgX = (int)x;
 		imgY = (int)y;
 		imgWidth = mImg.getWidth()/2;
