@@ -30,7 +30,7 @@ public class Sprite {
 	
 	protected int[] aCurrentFrame;//최근 프레임
 	private int[] aSpriteWidth;//프레임 크기
-	private int[] aSpriteHeight;
+	protected int[] aSpriteHeight;
 	private long[] aFrameTimer;
 	long[] aUpdateTime;
 	
@@ -71,14 +71,14 @@ public class Sprite {
 		imgX = (int)x;
 		imgY = (int)y;
 		imgWidth = mImg.getWidth()/2;
-		imgHeight = mImg.getHeight()/2;
+		imgHeight = mImg.getHeight();
 		
 	}
 	public void initSprite(float x,float y){
 		imgX = (int)x;
 		imgY = (int)y;
 		imgWidth = mImg.getWidth()/2;
-		imgHeight = mImg.getHeight()/2;
+		imgHeight = mImg.getHeight();
 	}
 	
 	
@@ -116,7 +116,7 @@ public class Sprite {
 		aRect[index].right = aSpriteHeight[index];
 		aFps[index] = 1000/fps;
 		aimgWidth[index] = aSpriteWidth[index]/2;
-		aimgHeight[index] = aSpriteHeight[index]/2;
+		aimgHeight[index] = aSpriteHeight[index];
 		
 		
 	}

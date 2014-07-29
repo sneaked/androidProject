@@ -30,9 +30,9 @@ public class GThread extends Thread {
 		mHolder = holder;	
 		sWidth = width;	
 		sHeight = heght;
-		ground = (int)(heght*0.75f);
+		ground = (int)(heght*0.9f);
 		//객체생성
-		imgBack = new Sprite(decode(R.drawable.bg));
+		imgBack = new Sprite(decode(R.drawable.stage_1));
 		player = new Player(3,sWidth*0.2f, ground);
 		enemy = new Enemy(decode(R.drawable.zombie));
 		enemy2 = new Enemy(decode(R.drawable.zombie));
@@ -44,8 +44,8 @@ public class GThread extends Thread {
 	void Start(){
 		//이미지 초기화
 		imgBack.initSprite(0, 0, sWidth, sHeight);
-		player.initAnimation(0,decode(R.drawable.player),sWidth*0.15f,sWidth*0.15f, 16, 8);
-		player.initAnimation(1, decode(R.drawable.playeridle), sWidth*0.15f, sWidth*0.15f, 30, 14);
+		player.initAnimation(0,decode(R.drawable.player),sWidth*0.1f,sWidth*0.1f, 16, 8);
+		player.initAnimation(1, decode(R.drawable.playeridle), sWidth*0.12f, sWidth*0.12f, 30, 14);
 		player.initAnimation(2, decode(R.drawable.playeratk), sWidth*0.15f, sWidth*0.15f, 20, 10);
 		enemy.initSprite(sWidth*0.65f, ground, sWidth/4, sWidth/3);
 		enemy2.initSprite(sWidth*0.6f, ground, sWidth/4, sWidth/3);

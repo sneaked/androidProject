@@ -4,10 +4,6 @@ import android.graphics.Bitmap;
 
 public class Player extends Sprite {
 
-	
-	
-	
-	
 	private int dashSpeed = 20;
 	private int defaultPositionx;
 	private long dashTime,touchTime;
@@ -29,8 +25,9 @@ public class Player extends Sprite {
 				direction = 1;
 				onTouch = false;
 			}
-			if(System.currentTimeMillis()-touchTime>1000){
+			if(aCurrentFrame[mainImg]>=aiFrames[mainImg]-1){
 				direction = 2;
+				aCurrentFrame[mainImg] = 0;
 			}
 			
 			break;
