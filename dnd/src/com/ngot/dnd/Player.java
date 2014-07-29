@@ -4,51 +4,44 @@ import android.graphics.Bitmap;
 
 public class Player extends Sprite {
 
+	
+	
+	
+	
 	private int dashSpeed = 20;
 	private int defaultPositionx;
 	private long dashTime,touchTime;
 	boolean onTouch = false;
 	int ex;
-	public Player(Bitmap img) {
-		super(img);
-		
-	}
-	@Override
-	public void initSprite(float x, float y, float width, float height) {
-		super.initSprite(x, y, width, height);
+	
+	public Player(int index, float x, float y) {
+		super(index, x, y);
 		defaultPositionx = imgX;
 	}
 	
 	public int Update(int direction) {
+		mainImg = direction;
 		switch(direction){
 		case 0://idle
 			break;
 		case 1://dash
-			if(onTouch)
-				imgX+=dashSpeed;
-			
-			if(ex-imgWidth<imgX){
+			if(onTouch){
+				direction = 1;
+				onTouch = false;
+			}
+			if(System.currentTimeMillis()-touchTime>1000){
 				direction = 2;
-				onTouch = false;
-				dashSpeed = -dashSpeed;
-				dashTime = System.currentTimeMillis();
 			}
 			
-			if(imgX<defaultPositionx){
-				imgX = defaultPositionx;
-				dashSpeed = -dashSpeed;
-				direction = 0;
-				onTouch = false;
-			}
 			break;
 		case 2://test
 			if(mUpdateTime-dashTime<1000){
 				if(onTouch){
-					direction = 3;
+					direction = 0;
 					onTouch = false;
 				}
 			}else{
-				direction = 1;
+				direction = 0;
 				onTouch = true;
 			}
 			break;
