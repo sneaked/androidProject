@@ -4,16 +4,20 @@ import android.graphics.Bitmap;
 
 public class Player extends Sprite {
 
+	
 	private int dashSpeed = 20;
 	private int defaultPositionx;
 	private long dashTime,touchTime;
 	boolean onTouch = false;
 	int ex;
 	
-	public Player(int index, float x, float y) {
-		super(index, x, y);
+	public Player(int index, Bitmap[] imgs, float x, float y) {
+		super(index, imgs, x, y);
 		defaultPositionx = imgX;
+		
 	}
+	
+	
 	
 	public int Update(int direction) {
 		mainImg = direction;
@@ -25,10 +29,11 @@ public class Player extends Sprite {
 				direction = 1;
 				onTouch = false;
 			}
-			if(aCurrentFrame[mainImg]>=aiFrames[mainImg]-1){
+			if(aCurrentFrame[mainImg]>aiFrames[mainImg]){
 				direction = 2;
 				aCurrentFrame[mainImg] = 0;
 			}
+			
 			
 			break;
 		case 2://test

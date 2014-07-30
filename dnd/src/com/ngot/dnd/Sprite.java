@@ -9,7 +9,7 @@ public class Sprite {
 	int imgX,imgY;
 	int imgWidth,imgHeight;
 	Bitmap mImg;
-	Bitmap[] aImgs;
+	Bitmap aImgs[];
 	
 	//1ani
 	private Rect mRect;//1프레임 영역
@@ -53,6 +53,23 @@ public class Sprite {
 		imgX = (int)x;
 		imgY = (int)y;
 		aImgs = new Bitmap[index];
+		aimgWidth = new int[index];
+		aimgHeight = new int[index];;
+		aRect = new Rect[index];//1프레임 영역
+		aFps = new int[index];//초당 프레임
+		aiFrames = new int[index];//프레임 개수
+		
+		aCurrentFrame = new int[index];//최근 프레임
+		aSpriteWidth = new int[index];//프레임 크기
+		aSpriteHeight = new int[index];
+		aFrameTimer = new long[index];
+		aUpdateTime = new long[index];
+	}
+	public Sprite(int index,Bitmap[] imgs,float x,float y){
+		
+		imgX = (int)x;
+		imgY = (int)y;
+		aImgs = imgs;
 		aimgWidth = new int[index];
 		aimgHeight = new int[index];;
 		aRect = new Rect[index];//1프레임 영역
@@ -118,9 +135,24 @@ public class Sprite {
 		aimgWidth[index] = aSpriteWidth[index]/2;
 		aimgHeight[index] = aSpriteHeight[index];
 		
-		
 	}
 
+	public void initAnimation(int index,int fps,int iFrame){
+		ani = true;
+		aRect[index] = new Rect(0, 0, 0, 0);
+		aFrameTimer[index] = 0;
+		aCurrentFrame[index] = 0;
+		aSpriteWidth[index] = aImgs[index].getWidth()/iFrame;
+		aSpriteHeight[index] =  aImgs[index].getHeight();
+		aiFrames[index] = iFrame;
+		aRect[index].bottom = aSpriteWidth[index];
+		aRect[index].right = aSpriteHeight[index];
+		aFps[index] = 1000/fps;
+		aimgWidth[index] = aSpriteWidth[index]/2;
+		aimgHeight[index] = aSpriteHeight[index];
+		
+	}
+	
 	public void Update(){
 		
 		

@@ -3,6 +3,7 @@ package com.ngot.dnd;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.drm.DrmStore.RightsStatus;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -97,25 +98,38 @@ public class GView extends SurfaceView implements Callback {
 		boolean left=false, right=false, up = false, down = false;
 		
 		Paint paint = new Paint();
+		
+		//test
+		Resources res = mContext.getResources();
+		Bitmap imgPlayers[] = new Bitmap[3];
+		
+		
 		public GameThread() {
 	
+			//test
+			imgPlayers[0] = scale(R.drawable.player_0, sWidth*0.25f, sWidth*0.25f, 14);
+			imgPlayers[1] = scale(R.drawable.player_1, sWidth*0.25f, sWidth*0.25f, 9);
+			imgPlayers[2] = scale(R.drawable.player_2, sWidth*0.25f, sWidth*0.25f, 20);
+			
+			
 			ground = (int)(sHeight*0.9f);
 			//객체생성
 			imgBack = new Sprite(decode(R.drawable.stage_1));
-			player = new Player(3,sWidth*0.2f, ground);
+			player = new Player(3,imgPlayers,sWidth*0.2f, ground);
 			enemy = new Enemy(decode(R.drawable.zombie));
 			enemy2 = new Enemy(decode(R.drawable.zombie));
 			paint.setColor(Color.RED);
 			paint.setTextSize(30);
 			Start();
+			
 		}
 		
 		void Start(){
 			//이미지 초기화
+			player.initAnimation(0, 30, 14);
+			player.initAnimation(1, 20, 9);
+			player.initAnimation(2, 20, 20);
 			imgBack.initSprite(0, 0, sWidth, sHeight);
-			player.initAnimation(0,decode(R.drawable.player),sWidth*0.1f,sWidth*0.1f, 16, 8);
-			player.initAnimation(1, decode(R.drawable.playeridle), sWidth*0.12f, sWidth*0.12f, 30, 14);
-			player.initAnimation(2, decode(R.drawable.playeratk), sWidth*0.15f, sWidth*0.15f, 20, 10);
 			enemy.initSprite(sWidth*0.65f, ground, sWidth/4, sWidth/3);
 			enemy2.initSprite(sWidth*0.6f, ground, sWidth/4, sWidth/3);
 			mEnemys.add(enemy);
@@ -220,7 +234,13 @@ public class GView extends SurfaceView implements Callback {
 		
 		Bitmap decode(int id){
 			Bitmap tmp;
-			tmp = BitmapFactory.decodeResource(mContext.getResources(), id);
+			tmp = BitmapFactory.decodeResource(res, id);
+			return tmp;
+		}
+		
+		Bitmap scale(int id,float width,float height,int iframes){
+			Bitmap tmp = BitmapFactory.decodeResource(res, id);
+			tmp = Bitmap.createScaledBitmap(tmp, (int)(width*iframes), (int)height, true);
 			return tmp;
 		}
 		
