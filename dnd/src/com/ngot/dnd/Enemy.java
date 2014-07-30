@@ -17,7 +17,7 @@ public class Enemy extends Sprite {
 	public void Update() {
 		
 		imgX+=speed;
-		if(GThread.sWidth/2>imgX||GThread.sWidth<imgX){
+		if(GView.sWidth/2>imgX||GView.sWidth<imgX){
 			speed = -speed;
 		}
 		

@@ -48,11 +48,11 @@ public class Player extends Sprite {
 			if(imgY<300){
 				s = -s;
 			}
-			if(imgY>GThread.ground){
+			if(imgY>GView.ground){
 				direction = 1;
 				onTouch = true;
 				s = -s;
-				imgY = GThread.ground;
+				imgY = GView.ground;
 			}
 			break;
 		}

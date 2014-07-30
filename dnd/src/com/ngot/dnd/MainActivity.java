@@ -43,16 +43,16 @@ public class MainActivity extends Activity {
 		switch (item.getItemId()) {
 		case GAME_EXIT:		
 			Toast.makeText(this, "exit", Toast.LENGTH_SHORT).show();
-			gView.gamePause();
+			gView.gamePause(true);
 			showDialog(GAME_EXIT);
 			break;
 		case GAME_PAUSE:
 			Toast.makeText(this, "pause", Toast.LENGTH_SHORT).show();
-			gView.gamePause();
+			gView.gamePause(true);
 			break;
 		case GAME_RESUME:
 			Toast.makeText(this, "resume", Toast.LENGTH_SHORT).show();
-			gView.gameResume();
+			gView.gamePause(false);
 			break;
 		}
 		
@@ -77,7 +77,7 @@ public class MainActivity extends Activity {
 			.setNegativeButton("CANCEL", new OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					gView.gameResume();
+					gView.gamePause(false);
 				}
 			}).create();
 			break;
@@ -93,7 +93,7 @@ public class MainActivity extends Activity {
 	
 	@Override
 	protected void onPause() {
-		gView.gamePause();
+		gView.gamePause(true);
 		super.onPause();
 	}
 }
