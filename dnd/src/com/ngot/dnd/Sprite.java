@@ -11,7 +11,7 @@ public class Sprite {
 	Bitmap mImg;
 	Bitmap aImgs[];
 	
-	//1ani
+	//ani
 	private Rect mRect;//1프레임 영역
 	private int mFps;//초당 프레임
 	protected int miFrames;//프레임 개수
@@ -54,7 +54,7 @@ public class Sprite {
 		imgY = (int)y;
 		aImgs = new Bitmap[index];
 		aimgWidth = new int[index];
-		aimgHeight = new int[index];;
+		aimgHeight = new int[index];
 		aRect = new Rect[index];//1프레임 영역
 		aFps = new int[index];//초당 프레임
 		aiFrames = new int[index];//프레임 개수

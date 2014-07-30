@@ -92,17 +92,18 @@ public class GView extends SurfaceView implements Callback {
 		//private int ground;
 		Sprite imgBack;
 		Player player;
-		int playerDirection = 0;
+		int playerDirection = 2;
 		Enemy enemy,enemy2;
-		ArrayList<Sprite> mEnemys = new ArrayList<Sprite>();
-		boolean left=false, right=false, up = false, down = false;
+		ArrayList<Enemy> mEnemys = new ArrayList<Enemy>();
 		
 		Paint paint = new Paint();
 		
 		//test
 		Resources res = mContext.getResources();
-		Bitmap imgPlayers[] = new Bitmap[3];
+		Bitmap imgPlayers[] = new Bitmap[5];
 		
+		Bitmap imgMissile[] = new Bitmap[2];
+		ArrayList<Missile> mMissiles = new ArrayList<Missile>();
 		
 		public GameThread() {
 	
@@ -110,12 +111,17 @@ public class GView extends SurfaceView implements Callback {
 			imgPlayers[0] = scale(R.drawable.player_0, sWidth*0.25f, sWidth*0.25f, 14);
 			imgPlayers[1] = scale(R.drawable.player_1, sWidth*0.25f, sWidth*0.25f, 9);
 			imgPlayers[2] = scale(R.drawable.player_2, sWidth*0.25f, sWidth*0.25f, 20);
+			imgPlayers[3] = scale(R.drawable.player_3, sWidth*0.25f, sWidth*0.25f, 22);
+			imgPlayers[4] = scale(R.drawable.player_4, sWidth*0.25f, sWidth*0.25f, 16);
+			
+			imgMissile[0] = scale(R.drawable.missile0_0, sWidth*0.1f, sWidth*0.1f, 7);
+			imgMissile[1] = scale(R.drawable.missile0_1, sWidth*0.1f, sWidth*0.1f, 8);
 			
 			
 			ground = (int)(sHeight*0.9f);
 			//객체생성
 			imgBack = new Sprite(decode(R.drawable.stage_1));
-			player = new Player(3,imgPlayers,sWidth*0.2f, ground);
+			player = new Player(5,imgPlayers,sWidth*0.2f, ground);
 			enemy = new Enemy(decode(R.drawable.zombie));
 			enemy2 = new Enemy(decode(R.drawable.zombie));
 			paint.setColor(Color.RED);
@@ -129,27 +135,94 @@ public class GView extends SurfaceView implements Callback {
 			player.initAnimation(0, 30, 14);
 			player.initAnimation(1, 20, 9);
 			player.initAnimation(2, 20, 20);
+			player.initAnimation(3, 60, 22);
+			player.initAnimation(4, 42, 16);
+			
 			imgBack.initSprite(0, 0, sWidth, sHeight);
 			enemy.initSprite(sWidth*0.65f, ground, sWidth/4, sWidth/3);
 			enemy2.initSprite(sWidth*0.6f, ground, sWidth/4, sWidth/3);
 			mEnemys.add(enemy);
 			mEnemys.add(enemy2);
 			
+			lastfire = System.currentTimeMillis();
 		}
+		boolean fire = false;
 		void Update(){
-			//업데이트
-			long GameTime = System.currentTimeMillis();
-			playerDirection = player.Update(playerDirection);
-			player.aniUpdate(GameTime);
-			enemy.Update();
-			enemy2.Update();
+			makeAll();
+			moveAll();
+			aniAll();
+			onCollision();
 		}
+		
+		
+		void makeAll(){
+		
+			if(playerDirection==3&&fire){
+				fire = false;
+				mMissiles.add(new Missile(2, imgMissile, player.imgX, player.imgY));
+			}
+			
+		}
+		
+		void moveAll(){
+			playerDirection = player.Update(playerDirection);
+			for(Missile t:mMissiles){
+				t.Update();
+			}
+			for(int i = mMissiles.size()-1;i>=0;i--){
+				if(mMissiles.get(i).isDead){
+					mMissiles.remove(i);
+				}
+			}
+			for(Enemy t:mEnemys){
+				t.Update();
+			}
+		}
+		
+		void aniAll(){
+			long GameTime = System.currentTimeMillis();
+			for(Missile t:mMissiles){
+				t.aniUpdate(GameTime);
+			}
+			player.aniUpdate(GameTime);
+		}
+		
+		
+		
 		void drawSprite(Canvas canvas){
 			//그리기
 			imgBack.drawSprite(canvas, true);
-			enemy.drawSprite(canvas, false);
-			enemy2.drawSprite(canvas, false);
+			for(Enemy t:mEnemys){
+				t.drawSprite(canvas, false);
+			}
 			player.drawSprite(canvas, false);
+			for(Missile t:mMissiles){
+				t.drawSprite(canvas, false);
+			}
+			canvas.drawText(mMissiles.size()+"", sWidth/2,sHeight/3, paint);
+			for(Missile t:mMissiles){
+				canvas.drawText(t.isHit+"", sWidth/2, sHeight/2, paint);
+			}
+
+		}
+		void onCollision(){
+			for(Missile t:mMissiles){
+				for(Enemy t2:mEnemys){
+					/*if(t2.imgX-t2.imgWidth/2<t.imgX){
+						t.isHit = true;
+						break;
+					}*/
+					if(t2.hitbox.left<t.hitbox.left){
+						t.isHit = true;
+						break;
+					}
+				}
+			}
+		}
+		void recycle(){
+			for(int i = 0;i<5;i++){
+				imgPlayers[i].recycle();
+			}
 		}
 		
 		//test
@@ -164,31 +237,23 @@ public class GView extends SurfaceView implements Callback {
 		void setmove(int x,int y){
 			movex = x;
 			movey = y;
+			if(downy+100<movey&&playerDirection==2){
+				playerDirection = 4;
+			}
 		}
 		void setup(int x,int y){
 			upx = x;
 			upy = y;
-			if(playerDirection==0){
-				playerDirection = 1;
-				int tmp = mEnemys.get(0).imgX;
-				for(Sprite t: mEnemys){
-					if(tmp>t.imgX){
-						tmp = t.imgX;
-					}
+			if(playerDirection==2){
+				currentfire = System.currentTimeMillis();
+				if(currentfire-lastfire>1000){
+					player.setTouchTime(true);
+					fire = true;
+					lastfire = currentfire;
 				}
-				player.setEnemyx(tmp);
 			}
-			
-			player.setTouchTime(true);
 		}
-		
-		void resetTouch(){
-				left = false;
-				right = false;
-				up = false;
-				down = false;
-		}
-		//end test
+		long lastfire,currentfire;
 		
 		@Override
 		public void run() {
@@ -198,7 +263,9 @@ public class GView extends SurfaceView implements Callback {
 				try{
 					synchronized (mHolder) {
 						Update();
+						//adjustFPS();
 						drawSprite(canvas);
+						
 					}
 				}finally{
 					if(canvas!=null){
@@ -215,6 +282,7 @@ public class GView extends SurfaceView implements Callback {
 					}
 				}
 			}//end while
+			recycle();
 		}//end run
 		
 			

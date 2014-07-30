@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 public class Player extends Sprite {
 
 	
-	private int dashSpeed = 20;
 	private int defaultPositionx;
 	private long dashTime,touchTime;
 	boolean onTouch = false;
@@ -14,7 +13,6 @@ public class Player extends Sprite {
 	public Player(int index, Bitmap[] imgs, float x, float y) {
 		super(index, imgs, x, y);
 		defaultPositionx = imgX;
-		
 	}
 	
 	
@@ -23,43 +21,41 @@ public class Player extends Sprite {
 		mainImg = direction;
 		switch(direction){
 		case 0://idle
+			aCurrentFrame[1] = 0;
 			break;
-		case 1://dash
-			if(onTouch){
-				direction = 1;
-				onTouch = false;
-			}
-			if(aCurrentFrame[mainImg]>aiFrames[mainImg]){
+		case 1://ready
+			
+			if(aCurrentFrame[mainImg]>=aiFrames[mainImg]-1){
+				aCurrentFrame[1] = 8;
 				direction = 2;
-				aCurrentFrame[mainImg] = 0;
-			}
-			
-			
-			break;
-		case 2://test
-			if(mUpdateTime-dashTime<1000){
-				if(onTouch){
-					direction = 0;
-					onTouch = false;
-				}
-			}else{
-				direction = 0;
-				onTouch = true;
 			}
 			break;
-		case 3://test
-			
-			imgY+=s;
-			if(imgY<300){
-				s = -s;
-			}
-			if(imgY>GView.ground){
-				direction = 1;
-				onTouch = true;
-				s = -s;
-				imgY = GView.ground;
+		case 2://readyidle
+			/*if(aCurrentFrame[mainImg]>=aiFrames[mainImg]-1){
+				aCurrentFrame[2] = 0;
+				direction = 3;
+			}*/
+			if(onTouch){
+				onTouch = false;
+				aCurrentFrame[2] = 0;
+				direction = 3;
 			}
 			break;
+		case 3://atk
+			if(aCurrentFrame[mainImg]>=aiFrames[mainImg]-1){
+				aCurrentFrame[3] = 0;
+				direction = 2;
+			}
+			break;
+		case 4://down
+			if(aCurrentFrame[mainImg]>=aiFrames[mainImg]-1){
+				aCurrentFrame[4] = 0;
+				aCurrentFrame[0] = 0;
+				onTouch = false;
+				direction = 2;
+			}
+			break;
+		
 		}
 		return direction;
 	}
