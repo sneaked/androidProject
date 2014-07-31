@@ -17,8 +17,8 @@ public class Sprite {
 	protected int miFrames;//프레임 개수
 	
 	protected int mCurrentFrame;//최근 프레임
-	private int mSpriteWidth;//프레임 크기
-	private int mSpriteHeight;
+	protected int mSpriteWidth;//프레임 크기
+	protected int mSpriteHeight;
 	private long mFrameTimer;
 	long mUpdateTime;
 	
@@ -36,7 +36,9 @@ public class Sprite {
 	
 	boolean ani = false;
 	int mainImg = 0;
+	boolean lastFrame = false;
 	
+
 	
 	public Sprite(Bitmap img) {
 		mImg = img;
@@ -82,6 +84,23 @@ public class Sprite {
 		aFrameTimer = new long[index];
 		aUpdateTime = new long[index];
 	}
+	public Sprite(int index,Bitmap[][] imgs,float x,float y,int kind){
+		
+		imgX = (int)x;
+		imgY = (int)y;
+		aImgs = imgs[kind];
+		aimgWidth = new int[index];
+		aimgHeight = new int[index];;
+		aRect = new Rect[index];//1프레임 영역
+		aFps = new int[index];//초당 프레임
+		aiFrames = new int[index];//프레임 개수
+		
+		aCurrentFrame = new int[index];//최근 프레임
+		aSpriteWidth = new int[index];//프레임 크기
+		aSpriteHeight = new int[index];
+		aFrameTimer = new long[index];
+		aUpdateTime = new long[index];
+	}
 
 	public void initSprite(float x,float y,float width,float height){
 		mImg = Bitmap.createScaledBitmap(mImg, (int)width, (int)height, true);
@@ -98,26 +117,6 @@ public class Sprite {
 		imgHeight = mImg.getHeight();
 	}
 	
-	
-	/*public void initAnimation(float x,float y,float width,float height,int fps,int iFrame){
-		mImg = Bitmap.createScaledBitmap(mImg, (int)(width*iFrame), (int)height, true);
-		mRect = new Rect(0, 0, 0, 0);
-		mFrameTimer = 0;
-		mCurrentFrame = 0;
-		mSpriteWidth = (int)width;
-		mSpriteHeight = (int)height;
-		mFps = fps;
-		miFrames = iFrame;
-		mRect.bottom = mSpriteHeight;
-		mRect.right = mSpriteWidth;
-		mFps = 1000/fps;
-		miFrames = iFrame;
-		ani = true;
-		imgWidth = mSpriteWidth/2;
-		imgHeight = mSpriteHeight/2;
-		imgX = (int)x;
-		imgY = (int)y;
-	}*/
 	public void initAnimation(int index,Bitmap img,float width,float height,int fps,int iFrame){
 		ani = true;
 		aImgs[index] = img;
@@ -127,7 +126,6 @@ public class Sprite {
 		aCurrentFrame[index] = 0;
 		aSpriteWidth[index] = (int)width;
 		aSpriteHeight[index] = (int)height;
-		//aFps[index] = fps;
 		aiFrames[index] = iFrame;
 		aRect[index].bottom = aSpriteWidth[index];
 		aRect[index].right = aSpriteHeight[index];
@@ -178,6 +176,11 @@ public class Sprite {
 				if(aCurrentFrame[mainImg]>=aiFrames[mainImg]){
 					aCurrentFrame[mainImg] = 0;
 				}
+				if(aCurrentFrame[mainImg]>=aiFrames[mainImg]-1){
+					lastFrame = true;
+				}else{
+					lastFrame = false;
+				}
 			}
 			aRect[mainImg].left = aCurrentFrame[mainImg]*aSpriteWidth[mainImg];
 			aRect[mainImg].right = aRect[mainImg].left+aSpriteWidth[mainImg];
@@ -204,7 +207,9 @@ public class Sprite {
 		}
 	}
 
-	
+	public boolean getlastFrame(){
+		return lastFrame;
+	}
 	
 	
 	

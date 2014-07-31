@@ -11,19 +11,20 @@ public class Missile extends Sprite {
 	public Missile(int index, Bitmap[] imgs, float x, float y) {
 		super(index, imgs, x, y);
 		initAnimation(0, 14, 7);
-		initAnimation(1, 16, 8);
 	}
 	
 	int dx = 5;
 	boolean isHit = false,isDead = false;
 	long currentTime;
+	int direction = 0;
 	@Override
 	public void Update() {
-		switch(mainImg){
+		
+		switch(direction){
 		case 0:
 			imgX+=dx;
 			if(isHit){
-				mainImg = 1;
+				direction = 1;
 				currentTime = System.currentTimeMillis();
 			}
 			break;
@@ -33,6 +34,9 @@ public class Missile extends Sprite {
 			}
 			break;
 		}
+		if(imgX>GView.sWidth+imgWidth){
+			isDead = true;
+		}
 	}
 	
 	@Override
@@ -41,6 +45,11 @@ public class Missile extends Sprite {
 		makeHitbox();
 	}
 	
+	
+	public void setHit(boolean isHit) {
+		this.isHit = isHit;
+	}
+
 	void makeHitbox(){
 		hitbox.left = imgX-imgWidth;
 		hitbox.top = imgY;
