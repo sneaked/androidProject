@@ -259,8 +259,9 @@ int drawable samurai_0 0x7f02006d
 int drawable samurai_1 0x7f02006e
 int drawable stage_1 0x7f02006f
 int drawable stage_2 0x7f020070
-int drawable title_spinshot 0x7f020071
-int drawable zombie 0x7f020072
+int drawable stage_3 0x7f020071
+int drawable title_spinshot 0x7f020072
+int drawable zombie 0x7f020073
 int id GView 0x7f05003d
 int id action_bar 0x7f05001c
 int id action_bar_activity_content 0x7f050015

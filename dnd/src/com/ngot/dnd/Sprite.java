@@ -117,24 +117,7 @@ public class Sprite {
 		imgHeight = mImg.getHeight();
 	}
 	
-	public void initAnimation(int index,Bitmap img,float width,float height,int fps,int iFrame){
-		ani = true;
-		aImgs[index] = img;
-		aImgs[index] = Bitmap.createScaledBitmap(aImgs[index], (int)(width*iFrame), (int)height, true);
-		aRect[index] = new Rect(0, 0, 0, 0);
-		aFrameTimer[index] = 0;
-		aCurrentFrame[index] = 0;
-		aSpriteWidth[index] = (int)width;
-		aSpriteHeight[index] = (int)height;
-		aiFrames[index] = iFrame;
-		aRect[index].bottom = aSpriteWidth[index];
-		aRect[index].right = aSpriteHeight[index];
-		aFps[index] = 1000/fps;
-		aimgWidth[index] = aSpriteWidth[index]/2;
-		aimgHeight[index] = aSpriteHeight[index];
-		
-	}
-
+	
 	public void initAnimation(int index,int fps,int iFrame){
 		ani = true;
 		aRect[index] = new Rect(0, 0, 0, 0);
@@ -156,11 +139,11 @@ public class Sprite {
 		
 	}
 	
-	public void aniUpdate(long GameTime){
+	public void aniUpdate(long thisTime){
 		if(ani==false){
-			mUpdateTime = GameTime;
-			if(GameTime>mFrameTimer+mFps){
-				mFrameTimer = GameTime;
+			mUpdateTime = thisTime;
+			if(thisTime>mFrameTimer+mFps){
+				mFrameTimer = thisTime;
 				mCurrentFrame += 1;
 				if(mCurrentFrame>=miFrames){
 					mCurrentFrame = 0;
@@ -169,9 +152,9 @@ public class Sprite {
 			mRect.left = mCurrentFrame*mSpriteWidth;
 			mRect.right = mRect.left+mSpriteWidth;
 		}else{
-			aUpdateTime[mainImg] = GameTime;
-			if(GameTime>aFrameTimer[mainImg]+aFps[mainImg]){
-				aFrameTimer[mainImg] = GameTime;
+			aUpdateTime[mainImg] = thisTime;
+			if(thisTime>aFrameTimer[mainImg]+aFps[mainImg]){
+				aFrameTimer[mainImg] = thisTime;
 				aCurrentFrame[mainImg] += 1;
 				if(aCurrentFrame[mainImg]>=aiFrames[mainImg]){
 					aCurrentFrame[mainImg] = 0;
@@ -196,14 +179,25 @@ public class Sprite {
 				canvas.drawBitmap(mImg, imgX-imgWidth, imgY-imgHeight, null);
 			}
 		}else{
-			mImg = aImgs[mainImg];
-			imgWidth = aimgWidth[mainImg];
-			imgHeight = aimgHeight[mainImg];
-			mSpriteWidth = aSpriteWidth[mainImg];
-			mSpriteHeight = aSpriteHeight[mainImg];
-			mRect = aRect[mainImg];
-			Rect dest = new Rect(imgX-imgWidth, imgY-imgHeight,(imgX+mSpriteWidth)-imgWidth,(imgY+mSpriteHeight)-imgHeight);
-			canvas.drawBitmap(mImg, mRect, dest, null);
+			if(bg){
+				mImg = aImgs[mainImg];
+				imgWidth = aimgWidth[mainImg];
+				imgHeight = aimgHeight[mainImg];
+				mSpriteWidth = aSpriteWidth[mainImg];
+				mSpriteHeight = aSpriteHeight[mainImg];
+				mRect = aRect[mainImg];
+				Rect dest = new Rect(imgX, imgY,(imgX+aSpriteWidth[mainImg]),(imgY+aSpriteHeight[mainImg]));
+				canvas.drawBitmap(mImg, mRect, dest, null);
+			}else{
+				mImg = aImgs[mainImg];
+				imgWidth = aimgWidth[mainImg];
+				imgHeight = aimgHeight[mainImg];
+				mSpriteWidth = aSpriteWidth[mainImg];
+				mSpriteHeight = aSpriteHeight[mainImg];
+				mRect = aRect[mainImg];
+				Rect dest = new Rect(imgX-imgWidth, imgY-imgHeight,(imgX+mSpriteWidth)-imgWidth,(imgY+mSpriteHeight)-imgHeight);
+				canvas.drawBitmap(mImg, mRect, dest, null);
+			}
 		}
 	}
 

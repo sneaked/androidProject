@@ -95,7 +95,10 @@ public class GView extends SurfaceView implements Callback {
 		
 		//----------배경
 		Sprite imgBack;
-		
+		BackGround back;
+		Bitmap imgBg[] = new Bitmap[1];
+		//----------인터페이스
+		Bitmap inter = scale(R.drawable.inter, sWidth, sHeight, 1);
 		
 		//----------캐릭터
 		Player player;
@@ -115,6 +118,10 @@ public class GView extends SurfaceView implements Callback {
 		public GameThread() {
 			ground = (int)(sHeight*0.9f);
 			makeImages();
+			
+			back = new BackGround(1, imgBg, 0, 0);
+			back.initAnimation(0, 8, 4);
+			
 			imgBack = new Sprite(decode(R.drawable.stage_2));
 			imgBack.initSprite(0, 0, sWidth, sHeight);
 
@@ -134,6 +141,8 @@ public class GView extends SurfaceView implements Callback {
 		}
 		
 		void makeImages(){
+			imgBg[0] = scale(R.drawable.stage_3, sWidth, sHeight*1.1f, 4);
+			
 			imgPlayers[0] = scale(R.drawable.samurai_0, sWidth/5, sWidth/5, 8);
 			imgPlayers[1] = scale(R.drawable.samurai_1, sWidth/5, sWidth/5, 8);
 			
@@ -211,13 +220,16 @@ public class GView extends SurfaceView implements Callback {
 			for(Enemy t:mEnemies){
 				t.aniUpdate(thisTime);
 			}
+			back.aniUpdate(thisTime);
 		}
 		
 		
-		Bitmap inter = scale(R.drawable.inter, sWidth, sHeight, 1);
+		
 		void drawSprite(Canvas canvas){
 			//그리기
-			imgBack.drawSprite(canvas, true);
+			
+			back.drawSprite(canvas, true);
+			//imgBack.drawSprite(canvas, true);
 			player.drawSprite(canvas, false);
 			canvas.drawText(mMissiles.size()+"", sWidth/2,sHeight/3, paint);
 			for(Enemy t:mEnemies){
