@@ -28,7 +28,7 @@ public class Enemy extends Sprite {
 			initAnimation(2, 12, 4);
 		}
 		lastTime = System.currentTimeMillis();
-		life = (kind==0)?3:5;
+		life = (kind==0)?600:1200;
 		
 		dx = aimgWidth[0]/25;
 		dy = aimgWidth[0]/15;
@@ -99,24 +99,31 @@ public class Enemy extends Sprite {
 			
 		}
 		if(isHit&&direction!=2){
-			if(thisTime-hitTime>800){
+			isHit = false;
+			if(thisTime-hitTime>600){
 				hitTime = thisTime;
 				direction = 2;
 				mainImg = 2;
-				life--;
+				life-=dmg;
 			}
-			isHit = false;
 		}else{
 			isHit = false;
 		}
-		if(life<0){
+		if(life<=0){
 			isDead = true;
 		}
 	}//end update
-	
-	public void setHit(boolean isHit) {
+	int dmg;
+	public void setHit(boolean isHit,int dmg) {
 		this.isHit = isHit;
+		this.dmg = dmg;
 	}
+
+	public boolean getHit() {
+		return isHit;
+	}
+	
+	
 	
 	
 }

@@ -6,11 +6,13 @@ public class Player extends Sprite {
 
 	
 	boolean onTouch = false;
+	int maxRange;
+	int atk = 149;
 	
 	public Player(int index, Bitmap[] imgs, float x, float y) {
 		super(index, imgs, x, y);
+		maxRange =	(int)(GView.sWidth*0.65f);
 	}
-	
 	
 	
 	public int Update(int direction) {
@@ -33,9 +35,20 @@ public class Player extends Sprite {
 		return direction;
 	}
 	
+	public int getMaxRange() {
+		return maxRange;
+	}
+	
 	void setTouchTime(boolean touchChk){
 		onTouch = touchChk;
 		
+	}
+
+	public void setAtk(int atk) {
+		this.atk = atk;
+	}
+	public int getAtk() {
+		return atk;
 	}
 
 }

@@ -1,6 +1,7 @@
 package com.ngot.dnd;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -92,9 +93,9 @@ public class GView extends SurfaceView implements Callback {
 		Resources res = mContext.getResources();
 		boolean isRun = true,isWait = false;
 		Paint paint = new Paint();
-		
+		Random rnd = new Random();
+		long updateTime,makeTime;
 		//----------배경
-		Sprite imgBack;
 		BackGround back;
 		Bitmap imgBg[] = new Bitmap[1];
 		//----------인터페이스
@@ -105,13 +106,17 @@ public class GView extends SurfaceView implements Callback {
 		Bitmap imgPlayers[] = new Bitmap[2];
 		int playerDirection = 0;
 		boolean fire = false;
+		int fireSpeed = 120;
 		long lastfire,currentfire;
-		//----------미사일
-		Bitmap imgMissile[] = new Bitmap[1];
-		
-		ArrayList<Missile> mMissiles = new ArrayList<Missile>();
+		double radian;
+		//----------무기
+		Bitmap imgWeapon[] = new Bitmap[1];
+		ArrayList<Weapon> mMissiles = new ArrayList<Weapon>();
+		//----------피해량
+		Bitmap imgFont[] = new Bitmap[10];
+		ImageScore dmg;
+		ArrayList<ImageScore> mDmgs = new ArrayList<ImageScore>();
 		//----------적군
-		Enemy e1,e2;
 		Bitmap imgEnemys[][] = new Bitmap[2][3];
 		ArrayList<Enemy> mEnemies = new ArrayList<Enemy>();
 		
@@ -121,19 +126,13 @@ public class GView extends SurfaceView implements Callback {
 			
 			back = new BackGround(1, imgBg, 0, 0);
 			back.initAnimation(0, 8, 4);
-			
-			imgBack = new Sprite(decode(R.drawable.stage_2));
-			imgBack.initSprite(0, 0, sWidth, sHeight);
 
 			player = new Player(2, imgPlayers, sWidth/7,ground);
 			player.initAnimation(0, 13, 8);
 			player.initAnimation(1, 16, 8);
 			
-			e1 = new Enemy(3, imgEnemys, sWidth, ground, 0);
-			e2 = new Enemy(3, imgEnemys, sWidth, ground, 1);
 			
-			mEnemies.add(e1);
-			mEnemies.add(e2);
+			
 			
 			paint.setColor(Color.RED);
 			paint.setTextSize(30);
@@ -154,9 +153,12 @@ public class GView extends SurfaceView implements Callback {
 			for(int i=0;i<3;i++){
 				imgEnemys[1][i] = scale(R.drawable.enemy1_0+i, sWidth/5, sWidth/5, n[i]);
 			}
-		
 			
-			imgMissile[0] = scale(R.drawable.missile0_0, sWidth*0.1f, sWidth*0.1f, 7);
+			imgWeapon[0] = scale(R.drawable.weapon0, sWidth*0.17f, sWidth*0.17f, 5);
+			for(int i =0;i<10;i++){
+				imgFont[i] = BitmapFactory.decodeResource(res, R.drawable.number_0+i);
+				imgFont[i] = Bitmap.createScaledBitmap(imgFont[i], (int)(sWidth*0.05f), (int)(sWidth*0.07f), true);
+			}
 		}
 		
 		void recycle(){
@@ -164,16 +166,21 @@ public class GView extends SurfaceView implements Callback {
 				imgPlayers[i].recycle();
 			}
 			for(int i =0;i<1;i++){
-				imgMissile[i].recycle();
+				imgWeapon[i].recycle();
 			}
 			for(int i = 0;i<2;i++){
 				for(int j = 0;j<3;j++){
 					imgEnemys[i][j].recycle();
 				}
 			}
+			for(int i =0;i<10;i++){
+				imgFont[i].recycle();
+				imgFont[i] = null;
+			}
 		}
 		
 		void Update(){
+			updateTime = System.currentTimeMillis();
 			makeAll();
 			moveAll();
 			aniAll();
@@ -182,18 +189,22 @@ public class GView extends SurfaceView implements Callback {
 		
 		
 		void makeAll(){
-		
+	
 			if(playerDirection==0&&fire){
 				fire = false;
-				mMissiles.add(new Missile(1, imgMissile, player.imgX, player.imgY));
+				mMissiles.add(new Weapon(1, imgWeapon, player.imgX, player.imgY,radian,player.maxRange,player.imgX));
+			}
+			
+			if(updateTime-makeTime>4000){
+				mEnemies.add(new Enemy(3, imgEnemys, sWidth, ground, rnd.nextInt(2)));
+				makeTime = updateTime;
 			}
 			
 		}
 		
 		void moveAll(){
-			long thisTime = System.currentTimeMillis();
 			playerDirection = player.Update(playerDirection);
-			for(Missile t:mMissiles){
+			for(Weapon t:mMissiles){
 				t.Update();
 			}
 			for(int i = mMissiles.size()-1;i>=0;i--){
@@ -203,24 +214,29 @@ public class GView extends SurfaceView implements Callback {
 			}
 			
 			for(int i = mEnemies.size()-1;i>=0;i--){
-				mEnemies.get(i).Update(thisTime);
+				mEnemies.get(i).Update(updateTime);
 				if(mEnemies.get(i).isDead){
 					mEnemies.remove(i);
 				}
 			}
+			for(int i=mDmgs.size()-1;i>=0;i--){
+				if(mDmgs.get(i).moveReturn()){
+					mDmgs.remove(i);
+				}
+			}
+			
 			
 		}
 		
 		void aniAll(){
-			long thisTime = System.currentTimeMillis();
-			for(Missile t:mMissiles){
-				t.aniUpdate(thisTime);
+			for(Weapon t:mMissiles){
+				t.aniUpdate(updateTime);
 			}
-			player.aniUpdate(thisTime);
+			player.aniUpdate(updateTime);
 			for(Enemy t:mEnemies){
-				t.aniUpdate(thisTime);
+				t.aniUpdate(updateTime);
 			}
-			back.aniUpdate(thisTime);
+			back.aniUpdate(updateTime);
 		}
 		
 		
@@ -229,27 +245,34 @@ public class GView extends SurfaceView implements Callback {
 			//그리기
 			
 			back.drawSprite(canvas, true);
-			//imgBack.drawSprite(canvas, true);
-			player.drawSprite(canvas, false);
-			canvas.drawText(mMissiles.size()+"", sWidth/2,sHeight/3, paint);
 			for(Enemy t:mEnemies){
 				t.drawSprite(canvas, false);
 			}
-			for(Missile t:mMissiles){
+			for(Weapon t:mMissiles){
 				t.drawSprite(canvas, false);
 			}
+			player.drawSprite(canvas, false);
+			
+			for(ImageScore t:mDmgs){
+				canvas.drawBitmap(t.img, t.x, t.y, null);
+			}
+			
 			for(Enemy t:mEnemies){
 				canvas.drawText(t.isHit+"", sWidth/2, sHeight/2, paint);
 			}
 			canvas.drawBitmap(inter, 0, sHeight, null);
+			canvas.drawText(downx+"/"+downy, 0, (int)(sHeight*0.45)+sHeight, paint);
 
 		}
 		void onCollision(){
-			for(Missile t:mMissiles){
+			for(Weapon t:mMissiles){
 				for(Enemy t1:mEnemies){
-					if(t.imgX>t1.imgX&&t.imgX<t1.imgX+t1.imgWidth){
-						t.setHit(true);
-						t1.setHit(true);
+					if(t.imgX>t1.imgX-t1.imgWidth&&t.imgX<t1.imgX+t1.imgWidth){
+						t.setHit();
+						if(t.getHit()){
+							t1.setHit(true,player.getAtk());
+							mDmgs.add(new ImageScore(imgFont, t1.imgX, t1.imgY-t1.imgHeight, player.getAtk()));
+						}
 						break;
 					}
 				}
@@ -262,10 +285,21 @@ public class GView extends SurfaceView implements Callback {
 		int downx,downy;
 		int movex,movey;
 		int upx,upy;
+		void calCharRadian(int x,int y){
+			radian = (Math.atan2((int)(sHeight*0.45)+sHeight-y, x-0))*0.5f;
+		}
 		void setdown(int x,int y){
 			downx = x;
 			downy = y;
-			
+			calCharRadian(x,y);
+			if(playerDirection==0){
+				currentfire = System.currentTimeMillis();
+				if(currentfire-lastfire>fireSpeed){
+					player.setTouchTime(true);
+					fire = true;
+					lastfire = currentfire;
+				}
+			}
 		}
 		void setmove(int x,int y){
 			movex = x;
@@ -275,14 +309,6 @@ public class GView extends SurfaceView implements Callback {
 		void setup(int x,int y){
 			upx = x;
 			upy = y;
-			if(playerDirection==0){
-				currentfire = System.currentTimeMillis();
-				if(currentfire-lastfire>300){
-					player.setTouchTime(true);
-					fire = true;
-					lastfire = currentfire;
-				}
-			}
 		}
 		
 		
