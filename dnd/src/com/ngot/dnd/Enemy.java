@@ -100,7 +100,7 @@ public class Enemy extends Sprite {
 		}
 		if(isHit&&direction!=2){
 			isHit = false;
-			if(thisTime-hitTime>600){
+			if(thisTime-hitTime>80){
 				hitTime = thisTime;
 				direction = 2;
 				mainImg = 2;

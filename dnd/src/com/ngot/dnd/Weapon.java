@@ -60,7 +60,7 @@ public class Weapon extends Sprite {
 	public void setHit() {
 		
 		currentTime = System.currentTimeMillis();
-		if(currentTime-lastTime>250){
+		if(currentTime-lastTime>300){
 			isHit = true;
 			lastTime = currentTime;
 		}

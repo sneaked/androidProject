@@ -35,9 +35,10 @@ public class ImageScore{
 	boolean moveReturn(){
 		y-=(h/6);
 		life--;
-		if(life<=0)
+		if(life<=0){
+			img.recycle();
 			return true;
-		
+		}
 		return false;
 	}
 	

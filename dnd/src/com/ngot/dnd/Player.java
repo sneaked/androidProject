@@ -8,7 +8,10 @@ public class Player extends Sprite {
 	boolean onTouch = false;
 	int maxRange;
 	int atk = 149;
-	
+	float hp = 3000f;
+	float maxHp = hp;
+	float exp = 0;
+	float maxExp = 3000;
 	public Player(int index, Bitmap[] imgs, float x, float y) {
 		super(index, imgs, x, y);
 		maxRange =	(int)(GView.sWidth*0.65f);
@@ -32,7 +35,15 @@ public class Player extends Sprite {
 			}
 			break;
 		}
+		levelup();
 		return direction;
+	}
+	
+	void levelup(){
+		if(exp>=maxExp){
+			exp = 0;
+			maxExp+=900;
+		}
 	}
 	
 	public int getMaxRange() {
