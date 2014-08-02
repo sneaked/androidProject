@@ -1,5 +1,7 @@
 package com.ngot.dnd;
 
+import java.util.Random;
+
 import android.graphics.Bitmap;
 
 public class Player extends Sprite {
@@ -12,6 +14,9 @@ public class Player extends Sprite {
 	float maxHp = hp;
 	float exp = 0;
 	float maxExp = 3000;
+	float mag[] = {0.8f,0.9f,1f,1.1f,1.2f,1.3f};
+	int level = 1;
+	Random rnd = new Random();
 	public Player(int index, Bitmap[] imgs, float x, float y) {
 		super(index, imgs, x, y);
 		maxRange =	(int)(GView.sWidth*0.65f);
@@ -40,10 +45,18 @@ public class Player extends Sprite {
 	}
 	
 	void levelup(){
-		if(exp>=maxExp){
+		
+		if(exp>maxExp){
+			float tmp = exp-maxExp;
+			level++;
 			exp = 0;
 			maxExp+=900;
+			exp+=tmp;
+			atk+=(int)(atk*0.2f);
 		}
+	}
+	public int getLevel() {
+		return level;
 	}
 	
 	public int getMaxRange() {
@@ -59,7 +72,12 @@ public class Player extends Sprite {
 		this.atk = atk;
 	}
 	public int getAtk() {
-		return atk;
+		int n = rnd.nextInt(6);
+		return (int)(atk*mag[n]);
 	}
-
+	
+	void decreaseHp(int eatk){
+		hp-=eatk;
+	}
+	
 }

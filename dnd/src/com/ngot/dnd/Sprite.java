@@ -136,7 +136,6 @@ public class Sprite {
 	
 	public void Update(){
 		
-		
 	}
 	
 	public void aniUpdate(long thisTime){
