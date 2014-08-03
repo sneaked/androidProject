@@ -5,7 +5,7 @@ import android.content.*;
 public class ImageScore{
 
 	int w,h;
-	int life = 20;
+	int life = 12;
 	int x,y;
 	Bitmap fonts[];
 	Bitmap img;
@@ -32,8 +32,13 @@ public class ImageScore{
 		h = img.getHeight()/2;
 	}
 	
+	int dx = 2;
 	boolean moveReturn(){
 		y-=(h/6);
+		x+=dx;
+		if(life>=0){
+			dx = -dx;
+		}
 		life--;
 		if(life<=0){
 			img.recycle();

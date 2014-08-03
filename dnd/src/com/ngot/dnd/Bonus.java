@@ -12,7 +12,7 @@ public class Bonus extends Sprite {
 	int atkdelay=3000;
 	long lastTime,thisTime,hitTime;
 	boolean isHit = false;
-	boolean isDead = false;
+	boolean isDead = false,isOut = false;
 	int direction = 0;
 	int cnt,dmg,atk;
 	boolean attack = false;
@@ -58,8 +58,11 @@ public class Bonus extends Sprite {
 		}else{
 			isHit = false;
 		}
-		if(life<=0||imgX<-imgWidth){
+		if(life<=0){
 			isDead = true;
+		}
+		if(imgX<-imgWidth){
+			isOut = true;
 		}
 	}//end update
 	

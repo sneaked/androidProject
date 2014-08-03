@@ -101,7 +101,7 @@ public class GView extends SurfaceView implements Callback {
 		MediaPlayer bgm;
 		SoundPool effectSound;
 		int effectid;
-		int timeLimit = 300000;
+		int stageLevel = 1,weaponLevel = 0;
 		//----------배경
 		BackGround back;
 		Bitmap imgBg[] = new Bitmap[1];
@@ -111,19 +111,22 @@ public class GView extends SurfaceView implements Callback {
 		Bitmap imgPanel0;
 		Sprite panel0;
 		Rect recPanel0;
+		Bitmap imgButtons[] = new Bitmap[5];
+		ArrayList<ImageButton> mImageButtons = new ArrayList<ImageButton>();
 		//----------캐릭터
 		Player player;
 		Bitmap imgPlayers[] = new Bitmap[2];
 		int playerDirection = 0;
 		boolean fire = false;
-		int fireSpeed = 180;
+		int fireSpeed = 800,saveFireSpeed = fireSpeed;
 		long lastfire,currentfire;
 		double radian;
 		//----------무기
-		Bitmap imgWeapon[] = new Bitmap[1];
+		Bitmap imgWeapon[] = new Bitmap[2];
 		ArrayList<Weapon> mWeapons = new ArrayList<Weapon>();
+		
 		//----------이펙트
-		Bitmap imgEffect[] = new Bitmap[1];
+		Bitmap imgEffect[] = new Bitmap[2];
 		ArrayList<Effect> mEffects = new ArrayList<Effect>();
 		//----------피해량
 		Bitmap imgFont[] = new Bitmap[10];
@@ -146,12 +149,18 @@ public class GView extends SurfaceView implements Callback {
 			back = new BackGround(1, imgBg, 0, 0);
 			back.initAnimation(0, 8, 4);
 
-			player = new Player(2, imgPlayers, sWidth/7,ground);
+			player = new Player(2, imgPlayers, sWidth*0.2f,ground);
 			player.initAnimation(0, 13, 8);
 			player.initAnimation(1, 16, 8);
 
 			panel0 = new Sprite(imgPanel0, 0, sHeight+(imgExpGauge.getHeight()*2)+imgExpGauge.getHeight()*0.23f);
 			recPanel0 = new Rect(panel0.imgX, panel0.imgY, panel0.imgX+panel0.mImg.getWidth(), panel0.imgY+panel0.mImg.getHeight());
+			
+			mImageButtons.add(new ImageButton(imgButtons, sWidth*0.7f, sHeight+(sHeight*0.13f), 0));
+			mImageButtons.add(new ImageButton(imgButtons, sWidth*0.7f, sHeight+(sHeight*0.425f), 1));
+			mImageButtons.add(new ImageButton(imgButtons, sWidth*0.7f, sHeight+(sHeight*0.71f), 2));
+			mImageButtons.add(new ImageButton(imgButtons, 0, sHeight+(sHeight*0.735f), 3));
+			mImageButtons.add(new ImageButton(imgButtons, sWidth*0.38f, sHeight+(sHeight*0.735f), 4));
 			
 			paint.setColor(Color.RED);
 			paint.setTextSize(30);
@@ -177,11 +186,13 @@ public class GView extends SurfaceView implements Callback {
 				imgEnemys[1][i] = scale(R.drawable.enemy1_0+i, sWidth/5, sWidth/5, n[i]);
 			}
 			
-			imgEnemys[2][0] = scale(R.drawable.enemy2_0, sWidth/4, sWidth/4, 6);
-			imgEnemys[2][1] = scale(R.drawable.enemy2_1, sWidth/4, sWidth/4, 15);
-			imgEnemys[2][2] = scale(R.drawable.enemy2_2, sWidth/4, sWidth/4, 6);
+			imgEnemys[2][0] = scale(R.drawable.enemy2_0, sWidth*0.3f, sWidth*0.3f, 6);
+			imgEnemys[2][1] = scale(R.drawable.enemy2_1, sWidth*0.3f, sWidth*0.3f, 15);
+			imgEnemys[2][2] = scale(R.drawable.enemy2_2, sWidth*0.3f, sWidth*0.3f, 6);
 			
 			imgWeapon[0] = scale(R.drawable.weapon0, sWidth*0.17f, sWidth*0.17f, 5);
+			imgWeapon[1] = scale(R.drawable.bust0, sWidth*0.25f, sWidth*0.25f, 3);
+			
 			for(int i =0;i<10;i++){
 				imgFont[i] = BitmapFactory.decodeResource(res, R.drawable.number_0+i);
 				imgFont[i] = Bitmap.createScaledBitmap(imgFont[i], (int)(sWidth*0.05f), (int)(sWidth*0.07f), true);
@@ -190,13 +201,21 @@ public class GView extends SurfaceView implements Callback {
 			imgGauge = scale(R.drawable.expgauge_0, sWidth, sHeight/16, 1);
 			imgExpGauge = scale(R.drawable.expgauge_1, sWidth, sHeight/16, 1);
 			imgHpGauge = scale(R.drawable.hpgauge_1, sWidth, sHeight/16, 1);
-			imgPanel0 = scale(R.drawable.panel0, sWidth*0.69f, sWidth*0.495f, 1);
+			
 			
 			imgEffect[0] = scale(R.drawable.effect_0, sWidth*0.19f, sWidth*0.14f, 7);
+			imgEffect[1] = scale(R.drawable.levelup, sWidth/3, sWidth/3, 7);
 			
 			for(int i = 0;i<imgBonus.length;i++){
 				imgBonus[i] = scale(R.drawable.bonus0_0+i, sWidth/3, sWidth/3, 4);
 			}
+			
+			imgPanel0 = scale(R.drawable.panel0, sWidth*0.69f, sWidth*0.495f, 1);
+			for(int i = 0;i<3;i++){
+				imgButtons[i] = scale(R.drawable.point0+i, sWidth*0.15f, sHeight*0.29f, 2);
+			}
+			imgButtons[3] = scale(R.drawable.point3, (int)(imgPanel0.getWidth()*0.27f), imgButtons[2].getHeight()*0.95f, 2);
+			imgButtons[4] = scale(R.drawable.point4, (int)(imgPanel0.getWidth()*0.227f), imgButtons[2].getHeight()*0.95f, 2);
 		}
 		
 		void recycle(){
@@ -232,6 +251,11 @@ public class GView extends SurfaceView implements Callback {
 				imgBonus[i].recycle();
 				imgBonus[i] = null;
 			}
+		//이미지 버튼
+			for(int i = 0;i<imgButtons.length;i++){
+				imgButtons[i].recycle();
+				imgButtons[i] = null;
+			}
 		}
 		
 		void Update(){
@@ -242,18 +266,15 @@ public class GView extends SurfaceView implements Callback {
 			onCollision();
 		}
 		
-		int n,kind;
 		void makeAll(){
 	
 			if(playerDirection==0&&fire){
 				fire = false;
-				mWeapons.add(new Weapon(1, imgWeapon, player.imgX, player.imgY,radian,player.maxRange,player.imgX));
+				mWeapons.add(new Weapon(imgWeapon.length, imgWeapon, player.imgX, player.imgY,radian,player.imgX,weaponLevel));
 			}
 			
 			if(updateTime-emakeTime>3000){
-				n = rnd.nextInt(100);
-				kind = (n>90)?2:(n>60)?1:0;
-				mEnemies.add(new Enemy(3, imgEnemys, sWidth, ground, kind));
+				mEnemies.add(new Enemy(3, imgEnemys, sWidth, ground, rnd.nextInt(stageLevel)));
 				emakeTime = updateTime;
 				player.hp-=player.maxHp*0.01f;
 			}
@@ -266,6 +287,9 @@ public class GView extends SurfaceView implements Callback {
 		
 		void moveAll(){
 			playerDirection = player.Update(playerDirection);
+			if(player.levelup()){
+				mEffects.add(new Effect(imgEffect.length, imgEffect, player.imgX-player.imgWidth, player.imgY+(player.imgWidth/9), 1));
+			}
 			for(Weapon t:mWeapons){
 				t.Update();
 			}
@@ -275,27 +299,33 @@ public class GView extends SurfaceView implements Callback {
 					mWeapons.remove(i);
 				}
 			}
-			
+		//적군
 			for(int i = mEnemies.size()-1;i>=0;i--){
 				mEnemies.get(i).Update(updateTime);
 				if(mEnemies.get(i).isDead){
-					player.exp+=mEnemies.get(i).getExp();
+					//player.exp+=mEnemies.get(i).getExp();
+					player.exp+=30000;
 					mEnemies.remove(i);
 				}
 			}
+		//데미지
 			for(int i=mDmgs.size()-1;i>=0;i--){
 				if(mDmgs.get(i).moveReturn()){
 					mDmgs.remove(i);
 				}
 			}
+		//이펙트
 			for(int i=mEffects.size()-1;i>=0;i--){
 				if(mEffects.get(i).moveReturn()){
 					mEffects.remove(i);				}
 			}
+		//보너스
 			for(int i=mBonus.size()-1;i>=0;i--){
 				mBonus.get(i).Update(updateTime);
 				if(mBonus.get(i).isDead){
 					player.exp+=mBonus.get(i).getExp();
+					mBonus.remove(i);
+				}else if(mBonus.get(i).isOut){
 					mBonus.remove(i);
 				}
 			}
@@ -333,11 +363,10 @@ public class GView extends SurfaceView implements Callback {
 			for(Weapon t:mWeapons){
 				t.drawSprite(canvas, false);
 			}
+			player.drawSprite(canvas, false);
 			for(Effect t:mEffects){
 				t.drawSprite(canvas, false);
 			}
-			player.drawSprite(canvas, false);
-			
 			for(ImageScore t:mDmgs){
 				canvas.drawBitmap(t.img, t.x, t.y, null);
 			}
@@ -358,7 +387,9 @@ public class GView extends SurfaceView implements Callback {
 			canvas.restore();
 		//panel0
 			panel0.drawSprite(canvas, true);
-			
+			for(ImageButton t:mImageButtons){
+				t.drawSprite(canvas);
+			}
 			canvas.drawText(mBonus.size()+"", 0, (int)(sHeight*0.5)+sHeight, paint);
 			
 		}
@@ -370,7 +401,7 @@ public class GView extends SurfaceView implements Callback {
 						if(t.getHit()){
 							t1.setHit(true,player.getAtk());
 							mDmgs.add(new ImageScore(imgFont, t1.imgX, t1.imgY-t1.imgHeight, player.getAtk()));
-							mEffects.add(new Effect(imgEffect.length, imgEffect, t.imgX, t.imgY));
+							mEffects.add(new Effect(imgEffect.length, imgEffect, t.imgX, t.imgY,0));
 						}
 						
 					}
@@ -380,7 +411,7 @@ public class GView extends SurfaceView implements Callback {
 						t.setHit();
 						if(t.getHit()){
 							bt.setHit(true);
-							mEffects.add(new Effect(imgEffect.length, imgEffect, t.imgX, t.imgY));
+							mEffects.add(new Effect(imgEffect.length, imgEffect, t.imgX, t.imgY,0));
 						}
 						
 					}
@@ -404,6 +435,30 @@ public class GView extends SurfaceView implements Callback {
 		void calCharRadian(int x,int y){
 			radian = (Math.atan2((int)(sHeight*0.5)+sHeight-y, x-0));
 		}
+		void btnCheck(int x,int y){
+			for(ImageButton t:mImageButtons){
+				if(t.btnCilck(x, y)){
+					switch(t.getKind()){
+					case 0:
+						break;
+					case 1:
+						break;
+					case 2:
+						break;
+					case 3:
+						weaponLevel = 0;
+						fireSpeed = saveFireSpeed;
+						player.setAtk(player.saveAtk);
+						break;
+					case 4:
+						weaponLevel = 1;
+						fireSpeed = 300;
+						player.setAtk((int)(player.getAtk()*1.5f));
+						break;
+					}
+				}
+			}
+		}
 		void setdown(int x,int y){
 			downx = x;
 			downy = y;
@@ -417,7 +472,9 @@ public class GView extends SurfaceView implements Callback {
 					effectSound.play(effectid, 5, 5, 0, 0, 1);
 				}
 			}
+			btnCheck(x,y);
 		}
+		
 		void setmove(int x,int y){
 			movex = x;
 			movey = y;
@@ -426,6 +483,9 @@ public class GView extends SurfaceView implements Callback {
 		void setup(int x,int y){
 			upx = x;
 			upy = y;
+			for(ImageButton t:mImageButtons){
+				t.btnUp();
+			}
 		}
 		
 		

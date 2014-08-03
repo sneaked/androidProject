@@ -84,6 +84,23 @@ public class Sprite {
 		aFrameTimer = new long[index];
 		aUpdateTime = new long[index];
 	}
+	public Sprite(int index,Bitmap[] imgs,float x,float y,int kind){
+		
+		imgX = (int)x;
+		imgY = (int)y;
+		aImgs = imgs;
+		aimgWidth = new int[index];
+		aimgHeight = new int[index];;
+		aRect = new Rect[index];//1프레임 영역
+		aFps = new int[index];//초당 프레임
+		aiFrames = new int[index];//프레임 개수
+		aCurrentFrame = new int[index];//최근 프레임
+		aSpriteWidth = new int[index];//프레임 크기
+		aSpriteHeight = new int[index];
+		aFrameTimer = new long[index];
+		aUpdateTime = new long[index];
+		mainImg = kind;
+	}
 	public Sprite(int index,Bitmap[][] imgs,float x,float y,int kind){
 		
 		imgX = (int)x;
@@ -169,7 +186,7 @@ public class Sprite {
 		}
 		
 	}
-
+	Rect dest;
 	public void drawSprite(Canvas canvas,boolean bg){
 		if(ani==false){
 			if(bg){
@@ -185,7 +202,8 @@ public class Sprite {
 				mSpriteWidth = aSpriteWidth[mainImg];
 				mSpriteHeight = aSpriteHeight[mainImg];
 				mRect = aRect[mainImg];
-				Rect dest = new Rect(imgX, imgY,(imgX+aSpriteWidth[mainImg]),(imgY+aSpriteHeight[mainImg]));
+				dest = null;
+				dest = new Rect(imgX, imgY,(imgX+aSpriteWidth[mainImg]),(imgY+aSpriteHeight[mainImg]));
 				canvas.drawBitmap(mImg, mRect, dest, null);
 			}else{
 				mImg = aImgs[mainImg];
@@ -194,7 +212,8 @@ public class Sprite {
 				mSpriteWidth = aSpriteWidth[mainImg];
 				mSpriteHeight = aSpriteHeight[mainImg];
 				mRect = aRect[mainImg];
-				Rect dest = new Rect(imgX-imgWidth, imgY-imgHeight,(imgX+mSpriteWidth)-imgWidth,(imgY+mSpriteHeight)-imgHeight);
+				dest = null;
+				dest = new Rect(imgX-imgWidth, imgY-imgHeight,(imgX+mSpriteWidth)-imgWidth,(imgY+mSpriteHeight)-imgHeight);
 				canvas.drawBitmap(mImg, mRect, dest, null);
 			}
 		}

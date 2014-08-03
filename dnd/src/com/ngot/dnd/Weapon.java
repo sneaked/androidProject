@@ -15,15 +15,27 @@ public class Weapon extends Sprite {
 	boolean isHit = false,isDead = false;
 	long currentTime,lastTime;
 	int direction = 0;
-	
-	public Weapon(int index, Bitmap[] imgs, float x, float y,double radian,int maxRange,int px) {
-		super(index, imgs, x, y);
+	int atkSpeed;
+	public Weapon(int index, Bitmap[] imgs, float x, float y,double radian,int px,int kind) {
+		super(index, imgs, px, y, kind);
 		initAnimation(0, 20, 5);
+		initAnimation(1, 24, 3);
 		this.radian = radian;
-		this.maxRange = maxRange;
 		this.px = px;
-		speed = aimgWidth[0]/3;
-		dx = speed/45;
+		
+		switch(kind){
+		case 0:
+			atkSpeed = 300;
+			speed = aimgWidth[0]/3;
+			dx = speed/25;//max:45&55
+			break;
+		case 1:
+			atkSpeed = 100;
+			speed = aimgWidth[1]/3;
+			dx = speed/40;
+			break;
+		}
+		
 	}
 	
 	
@@ -36,7 +48,6 @@ public class Weapon extends Sprite {
 			imgX = (int)(imgX+Math.cos(radian)*speed);
 			imgY = (int)(imgY-Math.sin(radian)*speed);
 			speed-=dx;
-			
 			
 			if(imgX<px){
 				direction = 1;
@@ -60,7 +71,7 @@ public class Weapon extends Sprite {
 	public void setHit() {
 		
 		currentTime = System.currentTimeMillis();
-		if(currentTime-lastTime>300){
+		if(currentTime-lastTime>atkSpeed){
 			isHit = true;
 			lastTime = currentTime;
 		}
