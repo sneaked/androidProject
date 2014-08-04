@@ -18,13 +18,17 @@ public class Enemy extends Sprite {
 	int direction = 0;
 	int cnt,dmg,atk,exp;
 	boolean attack = false;
+	boolean bossAttack = false;
 	public Enemy(int index, Bitmap[][] imgs, float x, float y, int kind) {
 		super(index, imgs, x, y, kind);
 		this.kind = kind;
 		init();
 		lastTime = System.currentTimeMillis();
-		dx = aimgWidth[0]/25;
-		dy = aimgWidth[0]/15;
+		dx = (int)(aimgWidth[0]*0.05f);
+		if(kind==3){
+			dx = (int)(aimgWidth[0]*0.01f);
+		}
+		
 		atk = (int)(life*0.2f);
 	}
 	void init(){
@@ -50,7 +54,7 @@ public class Enemy extends Sprite {
 			life = 4000;
 			exp = 3000;
 			break;
-		case 3:
+		case 3://º¸½º
 			initAnimation(0, 12, 12);
 			initAnimation(1, 36, 12);
 			initAnimation(2, 12, 6);
@@ -97,7 +101,7 @@ public class Enemy extends Sprite {
 			switch(direction){
 			case 0:
 				imgX-=dx;
-				if(thisTime-lastTime>1500){
+				if(thisTime-lastTime>2500){
 					direction = 1;
 					mainImg = 1;
 					aCurrentFrame[0] = 0;
@@ -105,11 +109,14 @@ public class Enemy extends Sprite {
 				}
 				break;
 			case 1:
-				if(getlastFrame()){
+				cnt++;
+				if(getlastFrame()&&cnt>10){
 					direction = 0;
 					mainImg = 0;
 					aCurrentFrame[1] = 0;
 					attack = false;
+					cnt = 0;
+					bossAttack =true;
 				}
 				break;
 			case 2:
@@ -143,8 +150,12 @@ public class Enemy extends Sprite {
 		}
 	}//end update
 	
-	
-	
+	public int getKind() {
+		return kind;
+	}
+	public int getDirection() {
+		return direction;
+	}
 	public void setHit(boolean isHit,int dmg) {
 		this.isHit = isHit;
 		this.dmg = dmg;
@@ -167,4 +178,25 @@ public class Enemy extends Sprite {
 	public int getExp() {
 		return exp;
 	}
+	public void setStop(){
+		dx = 0;
+	}
+	public boolean getBossAttack() {
+		return bossAttack;
+	}
+
+	public void setBossAttack(boolean bossAttack) {
+		this.bossAttack = bossAttack;
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
