@@ -27,13 +27,77 @@ public class Enemy extends Sprite {
 		dy = aimgWidth[0]/15;
 		atk = (int)(life*0.2f);
 	}
-	
+	void init(){
+		switch(kind){
+		case 0:
+			initAnimation(0, 4, 4);
+			initAnimation(1, 8, 8);
+			initAnimation(2, 12, 4);
+			life = 600;
+			exp = 300;
+			break;
+		case 1:
+			initAnimation(0, 4, 4);
+			initAnimation(1, 9, 9);
+			initAnimation(2, 12, 4);
+			life = 1200;
+			exp = 700;
+			break;
+		case 2:
+			initAnimation(0, 6, 6);
+			initAnimation(1, 17, 15);
+			initAnimation(2, 12, 6);
+			life = 4000;
+			exp = 3000;
+			break;
+		case 3:
+			initAnimation(0, 12, 12);
+			initAnimation(1, 36, 12);
+			initAnimation(2, 12, 6);
+			life = 32000;
+			exp = 50000;
+			break;
+			
+		}
+	}
 	public void Update(long thisTime) {
 		this.thisTime = thisTime;
+		if(kind!=3){
 			switch(direction){
 			case 0:
 				imgX-=dx;
 				if(attack){
+					direction = 1;
+					mainImg = 1;
+					aCurrentFrame[0] = 0;
+				}
+				break;
+			case 1:
+				if(getlastFrame()){
+					direction = 0;
+					mainImg = 0;
+					aCurrentFrame[1] = 0;
+					attack = false;
+				}
+				break;
+			case 2:
+				attack = false;
+				if(getlastFrame()){
+					cnt++;
+					if(cnt>12){
+						cnt = 0;
+						direction = 0;
+						mainImg = 0;
+						aCurrentFrame[2] = 0;
+					}
+				}
+				break;
+			}
+		}else{
+			switch(direction){
+			case 0:
+				imgX-=dx;
+				if(thisTime-lastTime>1500){
 					direction = 1;
 					mainImg = 1;
 					aCurrentFrame[0] = 0;
@@ -61,6 +125,8 @@ public class Enemy extends Sprite {
 				}
 				break;
 			}
+		}
+			
 		if(isHit&&direction!=2){
 			isHit = false;
 			if(thisTime-hitTime>80){
@@ -77,32 +143,7 @@ public class Enemy extends Sprite {
 		}
 	}//end update
 	
-	void init(){
-		switch(kind){
-		case 0:
-			initAnimation(0, 4, 4);
-			initAnimation(1, 8, 8);
-			initAnimation(2, 12, 4);
-			life = 600;
-			exp = 300;
-			break;
-		case 1:
-			initAnimation(0, 4, 4);
-			initAnimation(1, 9, 9);
-			initAnimation(2, 12, 4);
-			life = 1200;
-			exp = 700;
-			break;
-		case 2:
-			initAnimation(0, 6, 6);
-			initAnimation(1, 17, 15);
-			initAnimation(2, 12, 6);
-			life = 4000;
-			exp = 3000;
-			break;
-			
-		}
-	}
+	
 	
 	public void setHit(boolean isHit,int dmg) {
 		this.isHit = isHit;

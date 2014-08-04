@@ -3,6 +3,7 @@ package com.ngot.dnd;
 import java.util.ArrayList;
 import java.util.Random;
 
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -33,6 +34,7 @@ public class GView extends SurfaceView implements Callback {
 		mHolder = getHolder();
 		mHolder.addCallback(this);
 		mContext = context;
+		
 	}
 
 	@Override
@@ -58,6 +60,7 @@ public class GView extends SurfaceView implements Callback {
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		//gamePause(true);
+		
 	}
 	
 	@Override
@@ -93,15 +96,27 @@ public class GView extends SurfaceView implements Callback {
 	
 	class GameThread extends Thread{
 		
-		Resources res = mContext.getResources();
+		//스레드 제어
+		final int FPS = 25;
+		final int MAX_SKIP_FRAME = 5;
+		final int FRAME_PERIOD = 1000/FPS;//지연시간제어 (기준시간)
+		long lastTime;
+		long currentTime;//현재 시간
+		long timeGap;//경과시간
+		long sleepTime;//잠시 대기 시간(fast..)
+		int skipcnt;//스킵횟수 
 		boolean isRun = true,isWait = false;
+		
+		Resources res = mContext.getResources();
 		Paint paint = new Paint();
 		Random rnd = new Random();
 		long updateTime;
-		MediaPlayer bgm;
 		SoundPool effectSound;
-		int effectid;
 		int stageLevel = 1,weaponLevel = 0;
+		long startTime;
+		int timeLimit = 180;//20초  200->25초
+		float timeCnt = timeLimit;
+		boolean regen = false;
 		//----------배경
 		BackGround back;
 		Bitmap imgBg[] = new Bitmap[1];
@@ -113,6 +128,7 @@ public class GView extends SurfaceView implements Callback {
 		Rect recPanel0;
 		Bitmap imgButtons[] = new Bitmap[5];
 		ArrayList<ImageButton> mImageButtons = new ArrayList<ImageButton>();
+		Bitmap imgTimeGauge[] = new Bitmap[2];
 		//----------캐릭터
 		Player player;
 		Bitmap imgPlayers[] = new Bitmap[2];
@@ -121,19 +137,20 @@ public class GView extends SurfaceView implements Callback {
 		int fireSpeed = 800,saveFireSpeed = fireSpeed;
 		long lastfire,currentfire;
 		double radian;
+		int soundLevelup;
 		//----------무기
 		Bitmap imgWeapon[] = new Bitmap[2];
 		ArrayList<Weapon> mWeapons = new ArrayList<Weapon>();
-		
+		int soundAtk;
 		//----------이펙트
-		Bitmap imgEffect[] = new Bitmap[2];
+		Bitmap imgEffect[] = new Bitmap[4];
 		ArrayList<Effect> mEffects = new ArrayList<Effect>();
 		//----------피해량
 		Bitmap imgFont[] = new Bitmap[10];
 		ImageScore dmg;
 		ArrayList<ImageScore> mDmgs = new ArrayList<ImageScore>();
 		//----------적군
-		Bitmap imgEnemys[][] = new Bitmap[3][3];
+		Bitmap imgEnemys[][] = new Bitmap[4][3];
 		ArrayList<Enemy> mEnemies = new ArrayList<Enemy>();
 		long emakeTime;
 		//----------보너스
@@ -166,8 +183,10 @@ public class GView extends SurfaceView implements Callback {
 			paint.setTextSize(30);
 			
 			effectSound = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
-			effectid = effectSound.load(mContext, R.raw.weaponsound_0, 1);
+			soundAtk = effectSound.load(mContext, R.raw.weaponsound_0, 1);
+			soundLevelup = effectSound.load(mContext, R.raw.levelup, 1);
 			
+			startTime = System.currentTimeMillis();
 			
 		}
 		
@@ -190,6 +209,10 @@ public class GView extends SurfaceView implements Callback {
 			imgEnemys[2][1] = scale(R.drawable.enemy2_1, sWidth*0.3f, sWidth*0.3f, 15);
 			imgEnemys[2][2] = scale(R.drawable.enemy2_2, sWidth*0.3f, sWidth*0.3f, 6);
 			
+			imgEnemys[3][0] = scale(R.drawable.boss0_0, sWidth/3, sWidth/3, 12);
+			imgEnemys[3][1] = scale(R.drawable.boss0_0, sWidth/3, sWidth/3, 12);
+			imgEnemys[3][2] = scale(R.drawable.boss0_1, sWidth/3, sWidth/3, 6);
+			
 			imgWeapon[0] = scale(R.drawable.weapon0, sWidth*0.17f, sWidth*0.17f, 5);
 			imgWeapon[1] = scale(R.drawable.bust0, sWidth*0.25f, sWidth*0.25f, 3);
 			
@@ -202,9 +225,10 @@ public class GView extends SurfaceView implements Callback {
 			imgExpGauge = scale(R.drawable.expgauge_1, sWidth, sHeight/16, 1);
 			imgHpGauge = scale(R.drawable.hpgauge_1, sWidth, sHeight/16, 1);
 			
-			
-			imgEffect[0] = scale(R.drawable.effect_0, sWidth*0.19f, sWidth*0.14f, 7);
-			imgEffect[1] = scale(R.drawable.levelup, sWidth/3, sWidth/3, 7);
+			imgEffect[0] = scale(R.drawable.effect_0, sWidth*0.19f, sWidth*0.14f, 7);//기본무기 이펙트
+			imgEffect[1] = scale(R.drawable.levelup0, sWidth/3, sWidth/3, 7);//레벨업 날개
+			imgEffect[2] = scale(R.drawable.levelup1, sWidth/3, sWidth/3, 9);//레벨업 글자
+			imgEffect[3] = scale(R.drawable.busteffect0, sWidth*0.19f,  sWidth*0.14f, 4);//버스트 이펙트
 			
 			for(int i = 0;i<imgBonus.length;i++){
 				imgBonus[i] = scale(R.drawable.bonus0_0+i, sWidth/3, sWidth/3, 4);
@@ -216,6 +240,9 @@ public class GView extends SurfaceView implements Callback {
 			}
 			imgButtons[3] = scale(R.drawable.point3, (int)(imgPanel0.getWidth()*0.27f), imgButtons[2].getHeight()*0.95f, 2);
 			imgButtons[4] = scale(R.drawable.point4, (int)(imgPanel0.getWidth()*0.227f), imgButtons[2].getHeight()*0.95f, 2);
+			
+			imgTimeGauge[0] = scale(R.drawable.timegauge_0, sWidth*0.6f, sHeight*0.1f, 1);
+			imgTimeGauge[1] = scale(R.drawable.timegauge_1, sWidth*0.58f, sHeight*0.1f, 1);
 		}
 		
 		void recycle(){
@@ -256,14 +283,30 @@ public class GView extends SurfaceView implements Callback {
 				imgButtons[i].recycle();
 				imgButtons[i] = null;
 			}
+			for(int i=0;i<imgTimeGauge.length;i++){
+				imgTimeGauge[i].recycle();
+				imgTimeGauge[i] = null;
+			}
 		}
 		
 		void Update(){
 			updateTime = System.currentTimeMillis();
+			timeCheck();
 			makeAll();
 			moveAll();
 			aniAll();
 			onCollision();
+		}
+		
+		void timeCheck(){
+			if(updateTime-startTime>250){
+				timeCnt-=0.25f;
+				if(timeCnt<=0f){
+					startTime = updateTime;
+					timeCnt = timeLimit;
+					regen = true;
+				}
+			}
 		}
 		
 		void makeAll(){
@@ -273,14 +316,16 @@ public class GView extends SurfaceView implements Callback {
 				mWeapons.add(new Weapon(imgWeapon.length, imgWeapon, player.imgX, player.imgY,radian,player.imgX,weaponLevel));
 			}
 			
-			if(updateTime-emakeTime>3000){
-				mEnemies.add(new Enemy(3, imgEnemys, sWidth, ground, rnd.nextInt(stageLevel)));
-				emakeTime = updateTime;
-				player.hp-=player.maxHp*0.01f;
-			}
-			if(updateTime-bmakeTime>10000){
-				mBonus.add(new Bonus(imgBonus.length, imgBonus, sWidth+imgBonus[0].getWidth(), sHeight/2));
-				bmakeTime = updateTime;
+			if(regen){
+				if(updateTime-emakeTime>2000){
+					mEnemies.add(new Enemy(imgEnemys.length, imgEnemys, sWidth, ground, rnd.nextInt(stageLevel)));
+					emakeTime = updateTime;
+					player.hp-=player.maxHp*0.01f;
+				}
+				if(updateTime-bmakeTime>30000){
+					mBonus.add(new Bonus(imgBonus.length, imgBonus, sWidth+imgBonus[0].getWidth(), sHeight/2));
+					bmakeTime = updateTime;
+				}
 			}
 			
 		}
@@ -289,6 +334,9 @@ public class GView extends SurfaceView implements Callback {
 			playerDirection = player.Update(playerDirection);
 			if(player.levelup()){
 				mEffects.add(new Effect(imgEffect.length, imgEffect, player.imgX-player.imgWidth, player.imgY+(player.imgWidth/9), 1));
+				mEffects.add(new Effect(imgEffect.length, imgEffect, player.imgX, player.imgY-(imgEffect[2].getHeight()*0.5f), 2));
+				effectSound.play(soundLevelup, 1, 1, 0, 0, 1);
+				G.level++;
 			}
 			for(Weapon t:mWeapons){
 				t.Update();
@@ -303,7 +351,7 @@ public class GView extends SurfaceView implements Callback {
 			for(int i = mEnemies.size()-1;i>=0;i--){
 				mEnemies.get(i).Update(updateTime);
 				if(mEnemies.get(i).isDead){
-					//player.exp+=mEnemies.get(i).getExp();
+					player.exp+=mEnemies.get(i).getExp();
 					player.exp+=30000;
 					mEnemies.remove(i);
 				}
@@ -371,9 +419,7 @@ public class GView extends SurfaceView implements Callback {
 				canvas.drawBitmap(t.img, t.x, t.y, null);
 			}
 			
-			for(Enemy t:mEnemies){
-				canvas.drawText(t.isHit+"", sWidth/2, sHeight/2, paint);
-			}
+			
 			canvas.drawBitmap(inter, 0, sHeight, null);
 		//게이지
 			canvas.drawBitmap(imgGauge, 0, sHeight, null);
@@ -385,12 +431,17 @@ public class GView extends SurfaceView implements Callback {
 			canvas.scale(player.exp/player.maxExp, 1);
 			canvas.drawBitmap(imgExpGauge, 0, sHeight+imgExpGauge.getHeight(), null);
 			canvas.restore();
+		//시간
+			canvas.drawBitmap(imgTimeGauge[0], 0, sHeight*0.12f, null);
+			canvas.save();
+			canvas.scale(timeCnt/timeLimit, 1);
+			canvas.drawBitmap(imgTimeGauge[1], 0, sHeight*0.12f, null);
+			canvas.restore();
 		//panel0
 			panel0.drawSprite(canvas, true);
 			for(ImageButton t:mImageButtons){
 				t.drawSprite(canvas);
 			}
-			canvas.drawText(mBonus.size()+"", 0, (int)(sHeight*0.5)+sHeight, paint);
 			
 		}
 		void onCollision(){
@@ -401,7 +452,7 @@ public class GView extends SurfaceView implements Callback {
 						if(t.getHit()){
 							t1.setHit(true,player.getAtk());
 							mDmgs.add(new ImageScore(imgFont, t1.imgX, t1.imgY-t1.imgHeight, player.getAtk()));
-							mEffects.add(new Effect(imgEffect.length, imgEffect, t.imgX, t.imgY,0));
+							mEffects.add(new Effect(imgEffect.length, imgEffect, t.imgX, t.imgY,(weaponLevel==0)?0:3));
 						}
 						
 					}
@@ -411,7 +462,7 @@ public class GView extends SurfaceView implements Callback {
 						t.setHit();
 						if(t.getHit()){
 							bt.setHit(true);
-							mEffects.add(new Effect(imgEffect.length, imgEffect, t.imgX, t.imgY,0));
+							mEffects.add(new Effect(imgEffect.length, imgEffect, t.imgX, t.imgY,(weaponLevel==0)?0:3));
 						}
 						
 					}
@@ -469,7 +520,7 @@ public class GView extends SurfaceView implements Callback {
 					player.setTouchTime(true);
 					fire = true;
 					lastfire = currentfire;
-					effectSound.play(effectid, 5, 5, 0, 0, 1);
+					effectSound.play(soundAtk, 5, 5, 0, 0, 1);
 				}
 			}
 			btnCheck(x,y);
@@ -488,6 +539,27 @@ public class GView extends SurfaceView implements Callback {
 			}
 		}
 		
+		void adjustFPS(){
+			currentTime = System.currentTimeMillis();
+			timeGap = currentTime-lastTime;
+			lastTime = currentTime;
+			sleepTime = FRAME_PERIOD - timeGap;
+			if(sleepTime>0){//fast...
+				try {
+					GameThread.sleep(sleepTime);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			skipcnt=0;
+			while(sleepTime<0&&skipcnt<MAX_SKIP_FRAME){
+				Update();
+				sleepTime+=FRAME_PERIOD;
+				skipcnt++;
+			}
+			
+		}
 		
 		@Override
 		public void run() {
@@ -497,7 +569,7 @@ public class GView extends SurfaceView implements Callback {
 				try{
 					synchronized (mHolder) {
 						Update();
-						//adjustFPS();
+						adjustFPS();
 						drawSprite(canvas);
 						
 					}

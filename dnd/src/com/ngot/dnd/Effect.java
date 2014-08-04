@@ -10,6 +10,8 @@ public class Effect extends Sprite{
 		mainImg = kind;
 		initAnimation(0, 21, 7);
 		initAnimation(1, 7, 7);
+		initAnimation(2, 12, 9);
+		initAnimation(3, 16, 4);
 	}
 
 	public boolean moveReturn(){
