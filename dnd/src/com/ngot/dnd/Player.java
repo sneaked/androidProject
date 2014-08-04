@@ -54,7 +54,8 @@ public class Player extends Sprite {
 			exp = 0;
 			maxExp+=900;
 			exp+=tmp;
-			atk+=(int)(atk*0.08f);
+			atk+=(int)(atk*0.03f);
+			saveAtk+=(int)(atk*0.03f);
 			return true;
 		}
 		return false;

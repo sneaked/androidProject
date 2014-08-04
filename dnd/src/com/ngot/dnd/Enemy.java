@@ -77,6 +77,7 @@ public class Enemy extends Sprite {
 				}
 				break;
 			case 1:
+				imgX-=dx;
 				if(getlastFrame()){
 					direction = 0;
 					mainImg = 0;
@@ -132,8 +133,12 @@ public class Enemy extends Sprite {
 				}
 				break;
 			}
+			if(imgX<GView.sWidth/2){
+				dx = 0;
+			}
 		}
 			
+		
 		if(isHit&&direction!=2){
 			isHit = false;
 			if(thisTime-hitTime>80){
@@ -178,9 +183,7 @@ public class Enemy extends Sprite {
 	public int getExp() {
 		return exp;
 	}
-	public void setStop(){
-		dx = 0;
-	}
+	
 	public boolean getBossAttack() {
 		return bossAttack;
 	}

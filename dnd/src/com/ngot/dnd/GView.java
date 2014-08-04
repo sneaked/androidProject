@@ -119,6 +119,7 @@ public class GView extends SurfaceView implements Callback {
 		float timeCnt = timeLimit;
 		boolean startwave = true;
 		int regenTime = 3000;
+		boolean onFire = false;
 		//----------배경
 		BackGround back;
 		Bitmap imgBg[] = new Bitmap[1];
@@ -135,11 +136,13 @@ public class GView extends SurfaceView implements Callback {
 		Player player;
 		Bitmap imgPlayers[] = new Bitmap[2];
 		int playerDirection = 0;
-		boolean fire = false;
 		int fireSpeed = 800,saveFireSpeed = fireSpeed;
 		long lastfire,currentfire;
 		double radian;
 		int soundLevelup;
+		int statPoint = 10;
+		int bustMax = 50,bustCnt = 0,bustTime = 0;
+		boolean isBust = false;
 		//----------무기
 		Bitmap imgWeapon[] = new Bitmap[2];
 		ArrayList<Weapon> mWeapons = new ArrayList<Weapon>();
@@ -234,7 +237,7 @@ public class GView extends SurfaceView implements Callback {
 			imgEffect[4] = scale(R.drawable.lightning0, sWidth*0.4f,  sWidth*0.5f, 6);//보스 공격
 			
 			for(int i = 0;i<imgBonus.length;i++){
-				imgBonus[i] = scale(R.drawable.bonus0_0+i, sWidth*0.2f, sWidth*0.2f, 4);
+				imgBonus[i] = scale(R.drawable.bonus0_0+i, sWidth*0.15f, sWidth*0.15f, 4);
 			}
 			
 			imgPanel0 = scale(R.drawable.panel0, sWidth*0.69f, sWidth*0.495f, 1);
@@ -332,13 +335,40 @@ public class GView extends SurfaceView implements Callback {
 			if(mEnemies.size()==0){
 				startwave = true;
 			}
+			if(statPoint<=0){
+				for(int i=0;i<3;i++){
+					mImageButtons.get(i).setOn(false);
+				}
+			}else{
+				for(int i=0;i<3;i++){
+					mImageButtons.get(i).setOn(true);
+				}
+			}
+			if(bustCnt==bustMax){
+				mImageButtons.get(4).setOn(true);
+			}
+			if(isBust){//버스트 on
+				bustTime++;
+				if(bustTime>FPS*10){//10초지나면
+					isBust = false;//해제
+					bustTime = 0;//버스트시간 초기화
+					weaponLevel = 0;//무기레벨 초기화
+					fireSpeed = saveFireSpeed;//연사속도 초기화
+					player.setAtk(player.saveAtk);//공격력 초기화
+				}
+			}
 		}
 		
 		void makeAll(){
 	
-			if(playerDirection==0&&fire){
-				fire = false;
-				mWeapons.add(new Weapon(imgWeapon.length, imgWeapon, player.imgX, player.imgY,radian,player.imgX,weaponLevel));
+			if(onFire){
+				currentfire = System.currentTimeMillis();
+				if(currentfire-lastfire>fireSpeed){
+					player.setTouchTime(true);
+					mWeapons.add(new Weapon(imgWeapon.length, imgWeapon, player.imgX, player.imgY,radian,player.imgX,weaponLevel));
+					lastfire = currentfire;
+					effectSound.play(soundAtk, 5, 5, 0, 0, 1);
+				}
 			}
 			
 			if(startwave){
@@ -458,6 +488,7 @@ public class GView extends SurfaceView implements Callback {
 			canvas.scale(player.hp/player.maxHp, 1);
 			canvas.drawBitmap(imgHpGauge, 0, sHeight, null);
 			canvas.restore();
+			canvas.save();
 			canvas.drawBitmap(imgGauge, 0, sHeight+imgExpGauge.getHeight(), null);
 			canvas.scale(player.exp/player.maxExp, 1);
 			canvas.drawBitmap(imgExpGauge, 0, sHeight+imgExpGauge.getHeight(), null);
@@ -473,9 +504,18 @@ public class GView extends SurfaceView implements Callback {
 			for(ImageButton t:mImageButtons){
 				t.drawSprite(canvas);
 			}
-			canvas.drawText("게임레벨"+gameLevel, sWidth/2, sHeight/2, paint);
+			canvas.drawText("BUST"+bustCnt+"/"+bustMax, sWidth/2, sHeight/2, paint);
 			
 		}
+		
+		void bustUp(){
+			if(bustCnt<bustMax&&isBust==false){
+				bustCnt++;
+			}else if(bustCnt>=bustMax){
+				bustCnt = bustMax;
+			}
+		}
+		
 		void onCollision(){
 			for(Weapon t:mWeapons){
 				for(Enemy t1:mEnemies){
@@ -486,11 +526,13 @@ public class GView extends SurfaceView implements Callback {
 								t1.setHit(true,player.getAtk());
 								mDmgs.add(new ImageScore(imgFont, t1.imgX, t1.imgY-t1.imgHeight, player.getAtk()));
 								mEffects.add(new Effect(imgEffect.length, imgEffect, t.imgX, t.imgY,(weaponLevel==0)?0:3));
+								bustUp();
 							}
 						}else if(t1.getKind()==3&&t1.getDirection()==1){//보스가 공격중일때
 							t1.setHit(true,player.getAtk());
 							mDmgs.add(new ImageScore(imgFont, t1.imgX, t1.imgY-t1.imgHeight, player.getAtk()));
 							mEffects.add(new Effect(imgEffect.length, imgEffect, t.imgX, t.imgY,(weaponLevel==0)?0:3));
+							bustUp();
 						}
 						
 					}
@@ -535,20 +577,26 @@ public class GView extends SurfaceView implements Callback {
 				if(t.btnCilck(x, y)){
 					switch(t.getKind()){
 					case 0:
+						statPoint--;
 						break;
 					case 1:
+						statPoint--;
 						break;
 					case 2:
+						statPoint--;
 						break;
 					case 3:
-						weaponLevel = 0;
+						/*weaponLevel = 0;
 						fireSpeed = saveFireSpeed;
-						player.setAtk(player.saveAtk);
+						player.setAtk(player.saveAtk);*/
 						break;
 					case 4:
 						weaponLevel = 1;
 						fireSpeed = 300;
 						player.setAtk((int)(player.getAtk()*1.5f));
+						isBust = true;
+						bustCnt = 0;
+						t.setOn(false);
 						break;
 					}
 				}
@@ -558,15 +606,9 @@ public class GView extends SurfaceView implements Callback {
 			downx = x;
 			downy = y;
 			calCharRadian(x,y);
-			if(playerDirection==0&&recPanel0.contains(x, y)){
-				currentfire = System.currentTimeMillis();
-				if(currentfire-lastfire>fireSpeed){
-					player.setTouchTime(true);
-					fire = true;
-					lastfire = currentfire;
-					effectSound.play(soundAtk, 5, 5, 0, 0, 1);
-				}
-			}
+			if(recPanel0.contains(downx, downy))
+				onFire = true;
+			
 			btnCheck(x,y);
 		}
 		
@@ -578,6 +620,7 @@ public class GView extends SurfaceView implements Callback {
 		void setup(int x,int y){
 			upx = x;
 			upy = y;
+			onFire = false;
 			for(ImageButton t:mImageButtons){
 				t.btnUp();
 			}
