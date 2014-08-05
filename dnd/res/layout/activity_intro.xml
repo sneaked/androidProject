@@ -7,7 +7,8 @@
     <ImageView android:id="@+id/img_logo"
         android:layout_width="300dp"
         android:layout_height="180dp"
-        android:src="@drawable/kitesoft_logo"/>
+        android:src="@drawable/kitesoft_logo"
+        android:layout_centerInParent="true"/>
 
    
    

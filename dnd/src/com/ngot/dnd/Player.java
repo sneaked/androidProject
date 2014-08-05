@@ -22,7 +22,6 @@ public class Player extends Sprite {
 		savey = imgY;
 	}
 	
-	
 	public int Update(int direction) {
 		mainImg = direction;
 		switch(direction){

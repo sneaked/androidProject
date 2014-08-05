@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -12,6 +13,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.BitmapFactory.Options;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
@@ -192,12 +194,13 @@ public class GView extends SurfaceView implements Callback {
 			soundAtk = effectSound.load(mContext, R.raw.weaponsound_0, 1);
 			soundLevelup = effectSound.load(mContext, R.raw.levelup, 1);
 			G.level = 0;
+			G.wave = 0;
 			startTime = System.currentTimeMillis();
 			
 		}
 		
 		void makeImages(){
-			try{
+			
 				imgBg[0] = scale(R.drawable.stage_3, sWidth, sHeight*1.1f, 4);
 				
 				imgPlayers[0] = scale(R.drawable.samurai_0, sWidth/5, sWidth/5, 8);
@@ -254,9 +257,7 @@ public class GView extends SurfaceView implements Callback {
 				
 				imgTimeGauge[0] = scale(R.drawable.timegauge_0, sWidth*0.6f, sHeight*0.1f, 1);
 				imgTimeGauge[1] = scale(R.drawable.timegauge_1, sWidth*0.58f, sHeight*0.1f, 1);
-			}catch(Exception e){
-				return;			
-			}
+			
 		}
 		
 		void recycle(){
@@ -322,8 +323,6 @@ public class GView extends SurfaceView implements Callback {
 		void gameMgr(){
 			if(mEnemies.size()==0){
 				startwave = true;
-				
-				
 			}
 			if(startwave){
 				if(updateTime-startTime>250){
@@ -335,7 +334,8 @@ public class GView extends SurfaceView implements Callback {
 						gameLevel++;
 						regenTime-=400;
 						mEffects.add(new Effect(imgEffect.length, imgEffect, sWidth/2, sHeight*0.9f, 6));
-						//G.wave++;
+						G.wave++;
+						post(postLevel);
 					}
 				}
 			}
@@ -414,6 +414,7 @@ public class GView extends SurfaceView implements Callback {
 			@Override
 			public void run() {
 				((MainActivity)mContext).text_level.setText(G.level+"");
+				((MainActivity)mContext).text_wave.setText(G.wave+"");
 			}
 		};
 		void statsUp(){
@@ -451,7 +452,7 @@ public class GView extends SurfaceView implements Callback {
 					if(player.level<player.maxLevel){
 						player.exp+=mEnemies.get(i).getExp();
 						//player.exp+=30000;//test
-						player.hp+=player.maxHp*0.01f;
+						player.hp+=player.maxHp*0.05f;
 					}
 					mEnemies.remove(i);
 				}else if(mEnemies.get(i).isOut){
