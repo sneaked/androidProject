@@ -14,7 +14,7 @@ public class Enemy extends Sprite {
 	int atkdelay=3000;
 	long lastTime,thisTime,hitTime;
 	boolean isHit = false;
-	boolean isDead = false;
+	boolean isDead = false,isOut = false;
 	int direction = 0;
 	int cnt,dmg,atk,exp;
 	boolean attack = false;
@@ -102,7 +102,7 @@ public class Enemy extends Sprite {
 			switch(direction){
 			case 0:
 				imgX-=dx;
-				if(thisTime-lastTime>2500){
+				if(thisTime-lastTime>3500){
 					direction = 1;
 					mainImg = 1;
 					aCurrentFrame[0] = 0;
@@ -150,9 +150,13 @@ public class Enemy extends Sprite {
 		}else{
 			isHit = false;
 		}
+		if(imgX<-imgWidth){
+			isOut = true;
+		}
 		if(life<=0){
 			isDead = true;
 		}
+		
 	}//end update
 	
 	public int getKind() {

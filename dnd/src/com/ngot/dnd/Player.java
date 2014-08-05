@@ -8,14 +8,13 @@ public class Player extends Sprite {
 
 	
 	boolean onTouch = false;
-	int maxRange;
 	int atk = 149,saveAtk;
 	float hp = 3000f;
 	float maxHp = hp;
 	float exp = 0;
 	float maxExp = 3000;
 	float mag[] = {0.8f,0.9f,1f,1.1f,1.2f,1.3f};
-	int level = 1;
+	int level = 1,maxLevel = 100;
 	int savey;
 	Random rnd = new Random();
 	public Player(int index, Bitmap[] imgs, float x, float y) {
@@ -48,7 +47,7 @@ public class Player extends Sprite {
 	
 	public boolean levelup(){
 		
-		if(exp>=maxExp){
+		if(exp>=maxExp&&level<maxLevel){
 			float tmp = exp-maxExp;
 			level++;
 			exp = 0;
@@ -63,11 +62,6 @@ public class Player extends Sprite {
 	public int getLevel() {
 		return level;
 	}
-	
-	public int getMaxRange() {
-		return maxRange;
-	}
-	
 	void setTouchTime(boolean touchChk){
 		onTouch = touchChk;
 		
@@ -89,5 +83,4 @@ public class Player extends Sprite {
 	void decreaseHp(int eatk){
 		hp-=eatk;
 	}
-	
 }

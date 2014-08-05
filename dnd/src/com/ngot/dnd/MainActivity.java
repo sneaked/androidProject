@@ -8,6 +8,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
@@ -18,6 +19,7 @@ public class MainActivity extends Activity {
 	static final int GAME_RESUME = 3;
 	
 	BackPressCloseHandler backButton;
+	TextView text_level;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -25,6 +27,9 @@ public class MainActivity extends Activity {
 		gView = (GView)findViewById(R.id.GView);
 	
 		backButton = new BackPressCloseHandler(this,gView);
+		
+		text_level = (TextView)findViewById(R.id.text_level);
+		text_level.setText(G.level+"");
 	}
 	
 	@Override

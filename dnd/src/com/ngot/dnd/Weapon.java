@@ -16,7 +16,7 @@ public class Weapon extends Sprite {
 	long currentTime,lastTime;
 	int direction = 0;
 	int atkSpeed;
-	public Weapon(int index, Bitmap[] imgs, float x, float y,double radian,int px,int kind) {
+	public Weapon(int index, Bitmap[] imgs, float x, float y,double radian,int px,int kind,float despeed) {
 		super(index, imgs, px, y, kind);
 		initAnimation(0, 20, 5);
 		initAnimation(1, 24, 3);
@@ -27,7 +27,7 @@ public class Weapon extends Sprite {
 		case 0:
 			atkSpeed = 300;
 			speed = aimgWidth[0]/3;
-			dx = speed/25;//max:45&55
+			dx = speed/despeed;//max:45&55
 			break;
 		case 1:
 			atkSpeed = 100;
@@ -83,5 +83,4 @@ public class Weapon extends Sprite {
 	}
 
 	
-
 }

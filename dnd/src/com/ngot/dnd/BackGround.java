@@ -6,7 +6,7 @@ public class BackGround extends Sprite {
 
 	public BackGround(int index, Bitmap[] imgs, float x, float y) {
 		super(index, imgs, x, y);
-		// TODO Auto-generated constructor stub
+		initAnimation(0, 8, 4);
 		
 	}
 

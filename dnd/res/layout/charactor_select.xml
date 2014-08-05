@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:orientation="vertical"
+    android:weightSum="9" >
+
+    <ImageView
+        android:id="@+id/mihune"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:clickable="true"
+        android:onClick="monclick"
+        android:src="@drawable/btn_select_start"/>
+
+    <ImageView
+        android:id="@+id/zangief"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:clickable="true"
+        android:onClick="monclick"
+        android:src="@drawable/zangief" />
+
+    <ImageView
+        android:id="@+id/pocketball"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:background="@drawable/pocketball" />
+
+</LinearLayout>
