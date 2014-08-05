@@ -32,4 +32,16 @@
         android:layout_alignParentRight="true"
         />
     
+    <TextView 
+        android:id="@+id/text_stats"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/layout_statspoint"
+        android:layout_below="@id/text_level"
+        android:text="00"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        />
+    
 </RelativeLayout>

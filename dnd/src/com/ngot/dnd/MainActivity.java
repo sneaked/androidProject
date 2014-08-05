@@ -19,7 +19,7 @@ public class MainActivity extends Activity {
 	static final int GAME_RESUME = 3;
 	
 	BackPressCloseHandler backButton;
-	TextView text_level,text_wave;
+	TextView text_level,text_wave,text_stats;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -32,6 +32,8 @@ public class MainActivity extends Activity {
 		text_level.setText(G.level+"");
 		text_wave = (TextView)findViewById(R.id.text_wave);
 		text_wave.setText(G.wave+"");
+		text_stats = (TextView)findViewById(R.id.text_stats);
+		text_stats.setText(10+"");
 	}
 	
 	@Override

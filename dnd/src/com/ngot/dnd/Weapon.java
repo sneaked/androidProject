@@ -26,8 +26,6 @@ public class Weapon extends Sprite {
 			initAnimation(1, 24, 3);
 			break;
 		}
-		
-		
 		this.radian = radian;
 		this.px = px;
 		

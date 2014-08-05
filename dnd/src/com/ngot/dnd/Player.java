@@ -12,7 +12,7 @@ public class Player extends Sprite {
 	float hp = 3000f;
 	float maxHp = hp;
 	float exp = 0;
-	float maxExp = 3000;
+	float maxExp = 1000;
 	float mag[] = {0.8f,0.9f,1f,1.1f,1.2f,1.3f};
 	int level = 1,maxLevel = 61;
 	int savey;

@@ -30,7 +30,7 @@ public class Effect extends Sprite{
 			initAnimation(5, 12, 6);
 			break;
 		case 6:
-			initAnimation(6, 8, 8);
+			initAnimation(6, 4, 4);
 			break;
 		}
 		

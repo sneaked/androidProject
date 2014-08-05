@@ -13,9 +13,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.BitmapFactory.Options;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -136,6 +134,7 @@ public class GView extends SurfaceView implements Callback {
 		Bitmap imgButtons[] = new Bitmap[5];
 		ArrayList<ImageButton> mImageButtons = new ArrayList<ImageButton>();
 		Bitmap imgTimeGauge[] = new Bitmap[2];
+		Bitmap imgBustGauge_0,imgBustGauge_1;
 		//----------캐릭터
 		Player player;
 		Bitmap imgPlayers[] = new Bitmap[2];
@@ -145,8 +144,9 @@ public class GView extends SurfaceView implements Callback {
 		double radian;
 		int soundLevelup;
 		int statPoint = 10;
-		int bustMax = 50,bustCnt = 0,bustTime = 0,bustTimeMax = 8;
-		boolean isBust = false;
+		int bustMax = 100,bustTime = 0,bustTimeMax = 8;
+		float bustCnt = 100f;
+		boolean isBust = false,isLightning = false;
 		//----------무기
 		Bitmap imgWeapon[] = new Bitmap[2];
 		ArrayList<Weapon> mWeapons = new ArrayList<Weapon>();
@@ -160,7 +160,7 @@ public class GView extends SurfaceView implements Callback {
 		ImageScore dmg;
 		ArrayList<ImageScore> mDmgs = new ArrayList<ImageScore>();
 		//----------적군
-		Bitmap imgEnemys[][] = new Bitmap[4][3];
+		Bitmap imgEnemys[][] = new Bitmap[3][3];
 		ArrayList<Enemy> mEnemies = new ArrayList<Enemy>();
 		long emakeTime;
 		//----------보너스
@@ -193,8 +193,8 @@ public class GView extends SurfaceView implements Callback {
 			effectSound = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
 			soundAtk = effectSound.load(mContext, R.raw.weaponsound_0, 1);
 			soundLevelup = effectSound.load(mContext, R.raw.levelup, 1);
-			G.level = 0;
-			G.wave = 0;
+			G.level = 1;
+			G.wave = 1;
 			startTime = System.currentTimeMillis();
 			
 		}
@@ -219,10 +219,6 @@ public class GView extends SurfaceView implements Callback {
 				imgEnemys[2][1] = scale(R.drawable.enemy2_1, sWidth*0.3f, sWidth*0.3f, 15);
 				imgEnemys[2][2] = scale(R.drawable.enemy2_2, sWidth*0.3f, sWidth*0.3f, 6);
 				
-			//보스
-				imgEnemys[3][0] = scale(R.drawable.boss0_0, sWidth/2, sWidth/2, 12);
-				imgEnemys[3][1] = scale(R.drawable.boss0_0, sWidth/2, sWidth/2, 12);
-				imgEnemys[3][2] = scale(R.drawable.boss0_1, sWidth/2, sWidth/2, 6);
 				
 				imgWeapon[0] = scale(R.drawable.weapon0, sWidth*0.17f, sWidth*0.17f, 5);
 				imgWeapon[1] = scale(R.drawable.bust0, sWidth*0.25f, sWidth*0.25f, 3);
@@ -240,9 +236,9 @@ public class GView extends SurfaceView implements Callback {
 				imgEffect[1] = scale(R.drawable.levelup0, sWidth/3, sWidth/3, 7);//레벨업 날개
 				imgEffect[2] = scale(R.drawable.levelup1, sWidth/3, sWidth/3, 9);//레벨업 글자
 				imgEffect[3] = scale(R.drawable.busteffect0, sWidth*0.19f,  sWidth*0.14f, 4);//b이펙트
-				imgEffect[4] = scale(R.drawable.lightning0, sWidth*0.4f,  sWidth*0.5f, 6);//보스 공격
-				imgEffect[5] = scale(R.drawable.aura0, sWidth*0.6f,  sWidth*0.6f, 6);//aura
-				imgEffect[6] = scale(R.drawable.next0, sWidth*0.7f,  sWidth*0.6f, 8);//next
+				imgEffect[4] = scale(R.drawable.lightning0, sWidth*0.4f,  sWidth*0.5f, 6);//번개
+				imgEffect[5] = scale(R.drawable.aura0, sWidth*0.4f,  sWidth*0.4f, 6);//aura
+				imgEffect[6] = scale(R.drawable.next0, sWidth*0.5f,  sWidth*0.4f, 4);//next
 				
 				for(int i = 0;i<imgBonus.length;i++){
 					imgBonus[i] = scale(R.drawable.bonus0_0+i, sWidth*0.15f, sWidth*0.15f, 4);
@@ -258,6 +254,10 @@ public class GView extends SurfaceView implements Callback {
 				imgTimeGauge[0] = scale(R.drawable.timegauge_0, sWidth*0.6f, sHeight*0.1f, 1);
 				imgTimeGauge[1] = scale(R.drawable.timegauge_1, sWidth*0.58f, sHeight*0.1f, 1);
 			
+				imgBustGauge_0 = scale(R.drawable.bustgauge_0, sWidth*0.28f, sHeight*0.1f, 1);
+				imgBustGauge_1 = scale(R.drawable.bustgauge_1, sWidth*0.27f, sHeight*0.06f, 1);
+				
+				
 		}
 		
 		void recycle(){
@@ -321,8 +321,9 @@ public class GView extends SurfaceView implements Callback {
 		}
 		
 		void gameMgr(){
-			if(mEnemies.size()==0){
+			if(mEnemies.size()==0&&!startwave){
 				startwave = true;
+				mEffects.add(new Effect(imgEffect.length, imgEffect, sWidth/2, sHeight*0.7f, 6));
 			}
 			if(startwave){
 				if(updateTime-startTime>250){
@@ -333,14 +334,13 @@ public class GView extends SurfaceView implements Callback {
 						startwave = false;
 						gameLevel++;
 						regenTime-=400;
-						mEffects.add(new Effect(imgEffect.length, imgEffect, sWidth/2, sHeight*0.9f, 6));
 						G.wave++;
 						post(postLevel);
 					}
 				}
 			}
-			player.hp-=player.maxHp*0.0002f;
-			if(gameLevel%5==0){
+			player.hp-=player.maxHp*0.0005f;
+			if(gameLevel%4==0){
 				regenTime = 3000;
 				enemyLevel++;
 				gameLevel++;
@@ -349,23 +349,28 @@ public class GView extends SurfaceView implements Callback {
 				}
 			}
 			
-			if(gameLevel%8==0){
+			if(gameLevel%7==0){
 				enemyHpLevel++;
-				mEnemies.add(new Enemy(imgEnemys.length, imgEnemys, sWidth+(sWidth*0.2f), sHeight/2, 3,enemyHpLevel));
 				gameLevel++;
 			}
 			
 			if(statPoint<=0){
-				for(int i=0;i<3;i++){
+				for(int i=0;i<2;i++){
 					mImageButtons.get(i).setOn(false);
 				}
 			}else{
-				for(int i=0;i<3;i++){
+				for(int i=0;i<2;i++){
 					mImageButtons.get(i).setOn(true);
 				}
 			}
+			if (statPoint >= 6) {
+				mImageButtons.get(2).setOn(true);
+			} else {
+				mImageButtons.get(2).setOn(false);
+			}
 			if(bustCnt==bustMax){
 				mImageButtons.get(4).setOn(true);
+				mImageButtons.get(3).setOn(true);
 			}
 			if(isBust){//버스트 on
 				bustTime++;
@@ -408,6 +413,14 @@ public class GView extends SurfaceView implements Callback {
 					bmakeTime = updateTime;
 				}
 			}
+			if(isLightning){
+				for(Enemy t:mEnemies){
+					mEffects.add(new Effect(imgEffect.length, imgEffect, t.imgX, t.imgY, 4));
+					t.setHit(true, (int)(t.getMaxLife()*0.9f));
+					mDmgs.add(new ImageScore(imgFont, t.imgX, t.imgY, (int)(t.getMaxLife()*0.9f)));
+				}
+				isLightning = false;
+			}
 		}
 		
 		Runnable postLevel = new Runnable() {
@@ -415,10 +428,11 @@ public class GView extends SurfaceView implements Callback {
 			public void run() {
 				((MainActivity)mContext).text_level.setText(G.level+"");
 				((MainActivity)mContext).text_wave.setText(G.wave+"");
+				((MainActivity)mContext).text_stats.setText(statPoint+"");
 			}
 		};
 		void statsUp(){
-			statPoint+=3;
+			statPoint+=5;
 			if(isBust){
 				saveFireSpeed-=13f;
 			}else{
@@ -445,7 +459,7 @@ public class GView extends SurfaceView implements Callback {
 					mWeapons.remove(i);
 				}
 			}
-		//적군,보스
+		//적군
 			for(int i = mEnemies.size()-1;i>=0;i--){
 				mEnemies.get(i).Update(updateTime);
 				if(mEnemies.get(i).isDead){
@@ -478,13 +492,6 @@ public class GView extends SurfaceView implements Callback {
 					mBonus.remove(i);
 				}else if(mBonus.get(i).isOut){
 					mBonus.remove(i);
-				}
-			}
-		//보스
-			for(Enemy t:mEnemies){
-				if(t.getKind()==3&&t.getBossAttack()){
-					t.setBossAttack(false);
-					mEffects.add(new Effect(imgEffect.length, imgEffect, player.imgX, player.imgY, 4));
 				}
 			}
 		}
@@ -548,18 +555,23 @@ public class GView extends SurfaceView implements Callback {
 			canvas.drawBitmap(imgExpGauge, 0, sHeight+imgExpGauge.getHeight(), null);
 			canvas.restore();
 		//시간
-			canvas.drawBitmap(imgTimeGauge[0], 0, sHeight*0.12f, null);
+			canvas.drawBitmap(imgTimeGauge[0], sWidth*0.2f, 0, null);
 			canvas.save();
 			canvas.scale(timeCnt/timeLimit, 1);
-			canvas.drawBitmap(imgTimeGauge[1], 0, sHeight*0.12f, null);
+			canvas.drawBitmap(imgTimeGauge[1], sWidth*0.2f, 0, null);
+			canvas.restore();
+			
+			canvas.drawBitmap(imgBustGauge_0, 0, sHeight*0.12f, null);
+			canvas.save();
+			canvas.scale(bustCnt/bustMax, 1);
+			canvas.drawBitmap(imgBustGauge_1, 0, sHeight*0.12f, null);
 			canvas.restore();
 		//panel0
 			panel0.drawSprite(canvas, true);
 			for(ImageButton t:mImageButtons){
 				t.drawSprite(canvas);
 			}
-			canvas.drawText("BUST"+bustCnt+"/"+bustMax, sWidth/2, sHeight/2, paint);
-			canvas.drawText("stat"+statPoint, sWidth/2, sHeight/3, paint);
+			
 			
 		}
 		
@@ -575,23 +587,14 @@ public class GView extends SurfaceView implements Callback {
 			for(Weapon t:mWeapons){
 				for(Enemy t1:mEnemies){
 					if(t.imgX>t1.imgX-t1.imgWidth&&t.imgX<t1.imgX+t1.imgWidth&&t.imgY+(t.imgHeight/2)>t1.imgY){
-						if(t1.getKind()!=3){//일반enemy
-							t.setHit();
-							if(t.getHit()){
-								t1.setHit(true,player.getAtk());
-								mDmgs.add(new ImageScore(imgFont, t1.imgX, t1.imgY-t1.imgHeight, player.getAtk()));
-								mEffects.add(new Effect(imgEffect.length, imgEffect, t.imgX, t.imgY,(weaponLevel==0)?0:3));
-								bustUp();
-								break;
-							}
-						}else if(t1.getKind()==3&&t1.getDirection()==1){//보스가 공격중일때
+						t.setHit();
+						if(t.getHit()){
 							t1.setHit(true,player.getAtk());
 							mDmgs.add(new ImageScore(imgFont, t1.imgX, t1.imgY-t1.imgHeight, player.getAtk()));
 							mEffects.add(new Effect(imgEffect.length, imgEffect, t.imgX, t.imgY,(weaponLevel==0)?0:3));
 							bustUp();
 							break;
 						}
-						
 					}
 				}
 				for(Bonus bt:mBonus){
@@ -615,13 +618,7 @@ public class GView extends SurfaceView implements Callback {
 					}
 				}
 			}
-			for(Effect t:mEffects){
-				if(t.getKind()==4&&t.getlastFrame()){
-					mDmgs.add(new ImageScore(imgFont, player.imgX, player.imgY, (int)(player.maxHp*0.1f)));
-					player.decreaseHp((int)(player.maxHp*0.1f));
-					break;
-				}
-			}
+			
 		}
 		
 		//test
@@ -635,12 +632,12 @@ public class GView extends SurfaceView implements Callback {
 			for(ImageButton t:mImageButtons){
 				if(t.btnCilck(x, y)){
 					switch(t.getKind()){
-					case 0://공속-3
+					case 0://
 						statPoint--;
 						if(isBust){
-							saveFireSpeed-=8;
+							saveFireSpeed-=40;
 						}else{
-							fireSpeed -=8;
+							fireSpeed -=40;
 						}
 						break;
 					case 1:
@@ -652,7 +649,9 @@ public class GView extends SurfaceView implements Callback {
 						bustTimeMax++;
 						break;
 					case 3:
-						
+						isLightning = true;
+						bustCnt -=50;
+						t.setOn(false);
 						break;
 					case 4:
 						weaponLevel = 1;
@@ -660,11 +659,12 @@ public class GView extends SurfaceView implements Callback {
 						fireSpeed = 200;
 						player.setAtk((int)(player.getAtk()*1.5f));
 						isBust = true;
-						bustCnt = 0;
+						bustCnt -=50;
 						t.setOn(false);
 						mEffects.add(new Effect(imgEffect.length, imgEffect, player.imgX, player.imgY, 5));
 						break;
 					}
+					post(postLevel);
 				}
 			}
 		}
