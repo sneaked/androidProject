@@ -19,10 +19,11 @@ public class Enemy extends Sprite {
 	int cnt,dmg,atk,exp;
 	boolean attack = false;
 	boolean bossAttack = false;
-	public Enemy(int index, Bitmap[][] imgs, float x, float y, int kind) {
+	public Enemy(int index, Bitmap[][] imgs, float x, float y, int kind,int hplevel) {
 		super(index, imgs, x, y, kind);
 		this.kind = kind;
 		init();
+		life*=hplevel;
 		lastTime = System.currentTimeMillis();
 		dx = (int)(aimgWidth[0]*0.05f);
 		if(kind==3){
@@ -61,8 +62,8 @@ public class Enemy extends Sprite {
 			life = 32000;
 			exp = 50000;
 			break;
-			
 		}
+		
 	}
 	public void Update(long thisTime) {
 		this.thisTime = thisTime;
