@@ -1,5 +1,4 @@
-package com.ngot.windspin;
-
+package com.ngot.windslash;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;

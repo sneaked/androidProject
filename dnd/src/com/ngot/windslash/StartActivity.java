@@ -1,5 +1,4 @@
-package com.ngot.windspin;
-
+package com.ngot.windslash;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;

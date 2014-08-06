@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.ngot.windspin"
+    package="com.ngot.windslash"
     android:versionCode="1"
     android:versionName="1.0" >
 
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="16" />
-
+	<uses-permission
+	    android:name="android.permission.VIBRATE"
+	     />
+    
     <application
         android:allowBackup="true"
         android:icon="@drawable/wind_icon"
@@ -15,7 +18,7 @@
         android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" >
         <activity
         	
-            android:name=".IntroActivity"
+            android:name="com.ngot.windslash.IntroActivity"
             android:label="@string/app_name" 
             android:screenOrientation="portrait">
             <intent-filter>
@@ -25,17 +28,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".StartActivity">
+            android:name="com.ngot.windslash.StartActivity">
         </activity>
         <activity
-            android:name=".SelectActivity">
+            android:name="com.ngot.windslash.SelectActivity">
         </activity>
         
         <activity
-            android:name=".MainActivity">
+            android:name="com.ngot.windslash.MainActivity">
         </activity>
         <activity
-            android:name=".GameoverActivity">
+            android:name="com.ngot.windslash.GameoverActivity">
         </activity>
     </application>
 

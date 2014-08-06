@@ -1,10 +1,7 @@
-package com.ngot.windspin;
+package com.ngot.windslash;
 
 import java.util.ArrayList;
 import java.util.Random;
-
-
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -15,6 +12,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -107,6 +105,7 @@ public class GView extends SurfaceView implements Callback {
 		int skipcnt;//½ºÅµÈ½¼ö 
 		boolean isRun = true,isWait = false;
 		
+		Vibrator vibrator;
 		Bitmap tmp;
 		Resources res = mContext.getResources();
 		Paint paint = new Paint();
@@ -193,6 +192,7 @@ public class GView extends SurfaceView implements Callback {
 			effectSound = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
 			soundAtk = effectSound.load(mContext, R.raw.weaponsound_0, 1);
 			soundLevelup = effectSound.load(mContext, R.raw.levelup, 1);
+			vibrator = (Vibrator)mContext.getSystemService(Context.VIBRATOR_SERVICE);
 			G.level = 1;
 			G.wave = 1;
 			post(postLevel);
@@ -310,6 +310,12 @@ public class GView extends SurfaceView implements Callback {
 				imgTimeGauge[i].recycle();
 				imgTimeGauge[i] = null;
 			}
+			
+			if(effectSound!=null){
+				effectSound.release();
+				effectSound = null;
+			}
+			
 		}
 		
 		void Update(){
@@ -340,7 +346,7 @@ public class GView extends SurfaceView implements Callback {
 					}
 				}
 			}
-			player.hp-=player.maxHp*0.0005f;
+			player.decreaseHp(player.maxHp*0.0005f);
 			if(gameLevel%4==0){
 				regenTime = 3000;
 				enemyLevel++;
@@ -415,10 +421,10 @@ public class GView extends SurfaceView implements Callback {
 					emakeTime = updateTime;
 					
 				}
-				if(updateTime-bmakeTime>20000&&mBonus.size()==0){
-					mBonus.add(new Bonus(imgBonus.length, imgBonus, sWidth+imgBonus[0].getWidth(), sHeight/2));
-					bmakeTime = updateTime;
-				}
+			}
+			if(updateTime-bmakeTime>20000&&mBonus.size()==0){
+				mBonus.add(new Bonus(imgBonus.length, imgBonus, sWidth+imgBonus[0].getWidth(), sHeight/2));
+				bmakeTime = updateTime;
 			}
 			if(isLightning){
 				for(Enemy t:mEnemies){
@@ -473,7 +479,8 @@ public class GView extends SurfaceView implements Callback {
 					if(player.level<player.maxLevel){
 						player.exp+=mEnemies.get(i).getExp();
 						//player.exp+=30000;//test
-						player.hp+=player.maxHp*0.05f;
+						if(player.hp<player.maxHp)
+							player.hp+=mEnemies.get(i).getMaxLife()*0.3f;
 					}
 					mEnemies.remove(i);
 				}else if(mEnemies.get(i).isOut){
@@ -617,9 +624,10 @@ public class GView extends SurfaceView implements Callback {
 
 				}
 			}
-			for(Enemy t:mEnemies){
+			for(Enemy t:mEnemies){//Àû±º°ø°Ý
 				if(t.imgX-t.aimgWidth[0]<player.imgX+player.aimgWidth[0]){
 					if(t.setAttack(true)){
+						vibrator.vibrate(300);
 						player.decreaseHp(t.getAtk());
 						break;
 					}
@@ -766,18 +774,11 @@ public class GView extends SurfaceView implements Callback {
 			}
 		}
 		
-		Bitmap decode(int id){
-			tmp = BitmapFactory.decodeResource(res, id);
-			return tmp;
-		}
-		
 		Bitmap scale(int id,float width,float height,int iframes){
 			tmp = BitmapFactory.decodeResource(res, id);
 			tmp = Bitmap.createScaledBitmap(tmp, (int)(width*iframes), (int)height, true);
 			return tmp;
 		}
-		
-		
 		
 	}
 

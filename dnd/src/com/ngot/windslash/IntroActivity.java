@@ -1,9 +1,7 @@
-package com.ngot.windspin;
+package com.ngot.windslash;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -41,6 +39,7 @@ public class IntroActivity extends Activity {
 	};
 	
 	public void onBackPressed() {
+		timer.cancel();
 		finish();
 	};
 }

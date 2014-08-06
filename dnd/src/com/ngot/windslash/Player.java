@@ -1,4 +1,4 @@
-package com.ngot.windspin;
+package com.ngot.windslash;
 
 import java.util.Random;
 
@@ -79,7 +79,7 @@ public class Player extends Sprite {
 		return (int)(atk*mag[n]);
 	}
 	
-	void decreaseHp(int eatk){
+	void decreaseHp(float eatk){
 		hp-=eatk;
 	}
 }

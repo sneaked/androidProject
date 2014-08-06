@@ -1,4 +1,4 @@
-package com.ngot.windspin;
+package com.ngot.windslash;
 
 public class G {
 	
