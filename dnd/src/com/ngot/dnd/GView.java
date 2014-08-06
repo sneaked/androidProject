@@ -195,6 +195,7 @@ public class GView extends SurfaceView implements Callback {
 			soundLevelup = effectSound.load(mContext, R.raw.levelup, 1);
 			G.level = 1;
 			G.wave = 1;
+			post(postLevel);
 			startTime = System.currentTimeMillis();
 			
 		}
@@ -368,7 +369,7 @@ public class GView extends SurfaceView implements Callback {
 			} else {
 				mImageButtons.get(2).setOn(false);
 			}
-			if(bustCnt==bustMax){
+			if(bustCnt>=bustMax/2){
 				mImageButtons.get(4).setOn(true);
 				mImageButtons.get(3).setOn(true);
 			}
@@ -387,6 +388,9 @@ public class GView extends SurfaceView implements Callback {
 						}
 					}
 				}
+			}
+			if(player.hp<=0){
+				((MainActivity)mContext).handler.sendEmptyMessage(0);
 			}
 		}
 		

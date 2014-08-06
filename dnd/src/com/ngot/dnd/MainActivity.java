@@ -5,7 +5,10 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -34,6 +37,8 @@ public class MainActivity extends Activity {
 		text_wave.setText(G.wave+"");
 		text_stats = (TextView)findViewById(R.id.text_stats);
 		text_stats.setText(10+"");
+		
+		setVolumeControlStream(AudioManager.USE_DEFAULT_STREAM_TYPE);
 	}
 	
 	@Override
@@ -105,6 +110,15 @@ public class MainActivity extends Activity {
 		gView.gamePause(true);
 		super.onPause();
 	}
+	
+	Handler handler = new Handler(){
+		public void handleMessage(android.os.Message msg) {
+			gView.gameExit();
+			Intent i = new Intent(MainActivity.this,GameoverActivity.class);
+			startActivity(i);
+			finish();
+		}
+	};
 }
 
 
