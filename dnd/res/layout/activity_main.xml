@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     tools:context="${relativePackage}.${activityClass}" >
 
-    <com.ngot.dnd.GView 
+    <com.ngot.windspin.GView 
         android:id="@+id/GView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
